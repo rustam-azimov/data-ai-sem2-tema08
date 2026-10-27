@@ -1,0 +1,406 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Тренажёр 08·2 · SQL-запросы к учебной базе</title><style>
+:root{--ink:#18312d;--mint:#097b72;--bg:#f2f5f3;--paper:#fff;--muted:#59706d;--line:#dbe5df;--soft:#e9f4ef;--ochre:#f8f0df;--red:#9a4f35}
+*{box-sizing:border-box}body{background:var(--bg);color:var(--ink);font:16px/1.67 system-ui,-apple-system,'Segoe UI',Arial,sans-serif;margin:0}a{color:var(--mint);text-decoration:none}a:hover{text-decoration:underline}header{background:#103e37;color:#f1fbf6;padding:26px max(18px,calc((100vw - 1100px)/2));}header .kicker{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;opacity:.78}header h1{color:#f3fbf6;font-size:27px;line-height:1.19;margin:8px 0 7px}header p{margin:0;max-width:800px;opacity:.86}nav{max-width:1100px;margin:auto;padding:13px 19px;color:var(--muted);font-size:14px}nav a{margin-right:20px}main{max-width:1100px;margin:18px auto 68px;background:var(--paper);border:1px solid var(--line);border-radius:15px;box-shadow:0 10px 28px #16362b0e;padding:clamp(24px,4vw,52px)}h1,h2,h3{color:#153d34;line-height:1.24}h2{font-size:24px;margin-top:1.7em;padding-top:.18em;border-bottom:1px solid var(--line);padding-bottom:9px}h3{font-size:19px;margin-top:1.2em}p{max-width:860px;margin:1em 0}li{margin:.35em 0}strong{color:#0d6257}code{font:0.91em ui-monospace,SFMono-Regular,Consolas,'DejaVu Sans Mono',monospace;background:#eef2ef;padding:2px 5px;border-radius:4px}.callout{background:var(--ochre);border-radius:9px;padding:15px 20px;margin:22px 0}.small{font-size:13px;color:var(--muted)}.footer{margin-top:42px;border-top:1px solid var(--line);padding-top:13px;color:var(--muted);font-size:12px}.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0;align-items:center}button,input,textarea{font:inherit;padding:10px 14px;border:1px solid #c5dcd1;border-radius:8px;background:white;color:var(--ink)}button{cursor:pointer}button:focus-visible,textarea:focus-visible{outline:3px solid #e4ad45;outline-offset:2px}button.primary{background:var(--mint);color:white;border-color:var(--mint)}button:disabled{opacity:.55;cursor:default}.correct{background:#e3f4e9;padding:13px 17px;border-radius:10px;border:1px solid #7eae90;margin:12px 0}.wrong{background:#fff0e7;padding:13px 17px;border-radius:10px;border:1px solid #d0a28b;margin:12px 0}.neutral{background:#f4f7f5;padding:13px 17px;border-radius:10px;border:1px solid var(--line);margin:12px 0}
+.video-stub{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:22px;align-items:center;border:1px dashed #9fc4b3;background:#f4faf7;border-radius:13px;padding:18px;margin:22px 0}.video-stub .frame{aspect-ratio:16/9;border-radius:10px;background:linear-gradient(135deg,#103e37,#1f6457);color:#d9f1e7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:13px;text-align:center;padding:12px}.video-stub .play{width:54px;height:54px;border-radius:50%;border:2px solid #d9f1e7;display:flex;align-items:center;justify-content:center;font-size:20px;padding-left:4px}.video-stub h3{margin:0 0 4px;font-size:18px}.video-stub ol{margin:8px 0 0;padding-left:20px;font-size:14px}.video-stub li{margin:.2em 0}
+details.schema{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:#fbfdfc;margin:16px 0}details.schema summary{cursor:pointer;font-weight:700}.tgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}.tbox{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}.tbox h4{margin:0 0 6px;font:700 14px ui-monospace,Consolas,monospace;color:#0d6257;display:flex;justify-content:space-between;gap:8px}.tbox h4 span{font:400 12px system-ui,sans-serif;color:var(--muted)}.col{display:inline-block;margin:3px 4px 3px 0;padding:2px 8px;border-radius:20px;border:1px solid #c5dcd1;background:#f7faf8;font:12.5px ui-monospace,Consolas,monospace;cursor:pointer}.col:hover{background:#e4f1e7}.col.pk{border-color:#175747;background:#e3f4e9}.col.fk{border-color:#c9a560;background:#fbf4e4}.col sup{font:700 9px system-ui,sans-serif;color:#7e642e;margin-left:3px}.col.pk sup{color:#175747}
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:26px;align-items:start;margin-top:22px}.layout>*{min-width:0}.tasklist{position:sticky;top:14px;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fbfdfc;max-height:calc(100vh - 28px);overflow:auto}.tasklist .bl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:800;margin:12px 4px 5px}.tasklist .bl:first-child{margin-top:2px}.tasklist button{display:flex;width:100%;text-align:left;gap:8px;padding:6px 9px;border:0;border-radius:7px;background:none;font-size:14px;line-height:1.3}.tasklist button:hover{background:#e9f4ef}.tasklist button[aria-current="true"]{background:#103e37;color:#fff}.tasklist .st{flex:0 0 18px;font-weight:800;color:#2c8a5c}.tasklist button[aria-current="true"] .st{color:#bff5d9}.progress{font-size:13px;color:var(--muted);margin:2px 4px 8px}.meter{height:7px;background:#dae7df;border-radius:99px;overflow:hidden;margin:0 4px 6px}.meter span{display:block;height:100%;background:var(--mint);transition:width .2s}
+.tcard .tag{display:inline-block;background:#e5f3ed;color:#0e6857;border-radius:60px;padding:3px 11px;font-size:12px;font-weight:700}.tcard .tag.fix{background:#fbefe4;color:#8a4f2b}.tcard .tag.ai{background:#ece9fb;color:#4d3f99}.tcard h2{border:0;margin:10px 0 6px;padding:0;font-size:23px}
+.ask{border-left:4px solid #6f5fc4;background:#f5f3fd;padding:10px 16px;border-radius:0 9px 9px 0;margin:12px 0}.ask .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#4d3f99;font-weight:800}
+pre.sql{background:#112d2b;color:#d9eee7;padding:14px 16px;overflow:auto;border-radius:9px;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;margin:10px 0;white-space:pre}pre.sql .k{color:#8fe0c2;font-weight:700}pre.sql .s{color:#f3d58f}pre.sql .n{color:#f5b79e}
+textarea.editor{width:100%;min-height:170px;resize:vertical;font:14px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;background:#fbfdfc;padding:12px 14px;tab-size:2;white-space:pre;overflow:auto}.editor-label{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:16px;margin-bottom:4px}
+.verdict{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0}.verdict button.right{background:#e3f4e9;border-color:#4f9a72}.verdict button.miss{background:#fde9de;border-color:#d0a28b}
+.rt-wrap{overflow:auto;margin:10px 0;border:1px solid var(--line);border-radius:9px;max-height:380px}table.rt{border-collapse:collapse;width:100%;font-size:13.5px}table.rt th,table.rt td{text-align:left;padding:6px 11px;border-bottom:1px solid var(--line);white-space:nowrap}table.rt th{background:#e8f2ed;color:#214a3f;position:sticky;top:0;font-family:ui-monospace,Consolas,monospace;font-size:12.5px}table.rt td.null{color:#9aa9a4;font-style:italic}.rcount{font-size:13px;color:var(--muted)}
+.hint{background:#fbf4e4;border:1px solid #ead7b0;border-radius:9px;padding:10px 14px;margin:8px 0;font-size:14.5px}.explain{background:#eef7f2;border:1px solid #b9d9c7;border-radius:10px;padding:13px 17px;margin:12px 0}.explain b{color:#0d6257}
+.hidden{display:none!important}.loading{color:var(--muted);font-size:14px}kbd{font:12px ui-monospace,Consolas,monospace;border:1px solid #c5dcd1;border-bottom-width:2px;border-radius:5px;padding:1px 5px;background:#fff}
+@media(max-width:900px){.tgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:minmax(0,1fr)}.tasklist{position:static;max-height:none;display:flex;gap:6px;overflow-x:auto;padding:8px}.tasklist .bl,.tasklist .progress,.tasklist .meter{display:none}.tasklist button{flex:0 0 auto;width:auto;border:1px solid var(--line);white-space:nowrap}}
+@media(max-width:650px){main{border-radius:0;margin:0;padding:19px 16px}header{padding:24px 16px}header h1{font-size:23px}nav{padding:12px 16px}.video-stub,.tgrid{grid-template-columns:1fr}.toolbar button{flex:1 1 auto}}
+</style></head><body><header><div class="kicker">Данные как основа ИИ · бакалавриат · семестр 2 · тема 08</div><h1>Тренажёр 08·2 · SQL-запросы к учебной базе</h1><p>Пишем запросы к базе результатов дисциплин, ищем ошибки и проверяем запросы, предложенные ИИ. Ответ засчитывается, когда результат совпадает с эталоном.</p></header><nav><a href="../index.html#topic08">← Все материалы</a><a href="../read/08.html">Лонгрид 08</a><a href="Тренажер_08_разбор.html">Тренажёр 08·1 · Разбор кода</a><a href="../03_ЛАБОРАТОРНЫЕ/ЛР_08.html">Лабораторная 08</a></nav><main>
+<div class="callout">Это учебный тренажёр без оценки. Запросы выполняются прямо в браузере на копии учебной базы — сломать её нельзя: каждый запуск начинается с чистой копии. Проверяется результат, а не текст: подойдёт любой верный запрос, имена столбцов в результате можно задавать как угодно, важны значения и порядок столбцов. Прогресс сохраняется в этом браузере.</div>
+
+<figure class="video-stub" data-video-slot="t08-2-start"><div class="frame" role="img" aria-label="Место для видео"><div class="play" aria-hidden="true">▶</div><div>Видео появится здесь</div></div><figcaption><h3>Видео · Как начать работу с тренажёром (≈ 4 мин)</h3><div class="small">Заглушка. Сценарий будущей записи экрана:</div><ol><li>Схема базы: какие таблицы есть, как вставить имя столбца в запрос щелчком.</li><li>Первый запрос: кнопка «Выполнить» и <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd>, как читать результат.</li><li>Проверка: что значат подсказки «лишние строки» и «не хватает строк».</li><li>Задания «Найдите ошибку» и «Проверьте ИИ»: сначала вердикт, потом исправление.</li><li>Песочница и переход к лабораторной в DBeaver: те же запросы с префиксом <code>grades.</code></li></ol></figcaption></figure>
+
+<h2>Учебная база результатов дисциплин</h2>
+<p>Та же структура, что у основной базы в DBeaver (схема <code>grades</code>), только данных меньше: 10 студентов, 5 преподавателей, 4 дисциплины, 8 потоков, 34 записи на потоки и 14 результатов. Небольшой объём выбран намеренно: каждый ответ можно проверить глазами.</p>
+<details class="schema" open id="schemaBox"><summary>Схема базы — щёлкните по полю, чтобы вставить его в запрос</summary><div class="tgrid" id="schema"></div><p class="small" id="links"></p><p class="small">Статусы в <code>results.grade_status</code>: <code>graded</code> — оценка выставлена, <code>absent</code> — неявка, <code>unknown</code> — результат не определён. У неявки и неизвестного статуса <code>score_value</code> и <code>grade_value</code> пустые (NULL). Практический поток ссылается на свою лекцию через <code>parent_stream_id</code>. Скачать базу: <a href="../05_ДАННЫЕ_СТУДЕНТАМ/grades_training.sqlite" download>SQLite</a> · <a href="../05_ДАННЫЕ_СТУДЕНТАМ/grades_training.sql" download>SQL-скрипт</a>.</p></details>
+<div id="engine" class="loading" aria-live="polite">Загружаем SQL-движок (SQLite в браузере)…</div>
+
+<div class="layout hidden" id="layout">
+<aside class="tasklist" id="tasklist" aria-label="Список заданий"></aside>
+<section class="tcard" id="card" aria-live="polite"></section>
+</div>
+<div class="footer">Данные как основа ИИ · бакалавриат · тема 08 «Хранение данных и реляционные базы». Учебная база — тестовая база результатов дисциплин курса «Культура ИИ: аналитика данных». Запросы выполняются локально (SQLite через sql.js). Синтаксис заданий совпадает с PostgreSQL; различия, которые встретятся в DBeaver, отмечены в пояснениях.</div>
+</main>
+<script>
+(()=>{
+const DB_SQL=`CREATE TABLE students (
+  student_id INTEGER PRIMARY KEY,
+  student_name TEXT NOT NULL,
+  group_code TEXT NOT NULL,
+  faculty TEXT NOT NULL,
+  direction_name TEXT NOT NULL,
+  program_name TEXT NOT NULL
+);
+CREATE TABLE teachers (
+  teacher_id INTEGER PRIMARY KEY,
+  teacher_name TEXT NOT NULL
+);
+CREATE TABLE disciplines (
+  discipline_id INTEGER PRIMARY KEY,
+  discipline_name TEXT NOT NULL
+);
+CREATE TABLE streams (
+  stream_id INTEGER PRIMARY KEY,
+  discipline_id INTEGER NOT NULL,
+  stream_name TEXT NOT NULL,
+  stream_type TEXT NOT NULL,
+  teacher_id INTEGER NOT NULL,
+  parent_stream_id INTEGER,
+  FOREIGN KEY (discipline_id) REFERENCES disciplines(discipline_id),
+  FOREIGN KEY (teacher_id) REFERENCES teachers(teacher_id),
+  FOREIGN KEY (parent_stream_id) REFERENCES streams(stream_id)
+);
+CREATE TABLE enrollments (
+  student_id INTEGER NOT NULL,
+  stream_id INTEGER NOT NULL,
+  PRIMARY KEY (student_id, stream_id),
+  FOREIGN KEY (student_id) REFERENCES students(student_id),
+  FOREIGN KEY (stream_id) REFERENCES streams(stream_id)
+);
+CREATE TABLE results (
+  result_id INTEGER PRIMARY KEY,
+  student_id INTEGER NOT NULL,
+  discipline_id INTEGER NOT NULL,
+  stream_id INTEGER,
+  assessment_date TEXT NOT NULL,
+  score_value REAL,
+  grade_value INTEGER,
+  grade_status TEXT NOT NULL,
+  FOREIGN KEY (student_id) REFERENCES students(student_id),
+  FOREIGN KEY (discipline_id) REFERENCES disciplines(discipline_id),
+  FOREIGN KEY (stream_id) REFERENCES streams(stream_id)
+);
+INSERT INTO students VALUES
+(1, 'Алина Воронова', 'M3201', 'ФТМИ', 'Прикладная математика', 'Аналитика данных'),
+(2, 'Борис Крылов', 'M3201', 'ФТМИ', 'Прикладная математика', 'Аналитика данных'),
+(3, 'Виктория Смирнова', 'M3202', 'ФТМИ', 'Прикладная информатика', 'AI-аналитика'),
+(4, 'Глеб Новиков', 'M3202', 'ФТМИ', 'Прикладная информатика', 'AI-аналитика'),
+(5, 'Дарья Лаврова', 'M3301', 'ФЕН', 'Математика', 'Математическое моделирование'),
+(6, 'Егор Селезнёв', 'M3301', 'ФЕН', 'Математика', 'Математическое моделирование'),
+(7, 'Жанна Полякова', 'M3302', 'ФЕН', 'Статистика', 'Науки о данных'),
+(8, 'Илья Терентьев', 'M3302', 'ФЕН', 'Статистика', 'Науки о данных'),
+(9, 'Кира Фадеева', 'M3401', 'ФЦТ', 'Компьютерные системы', 'Интеллектуальные системы'),
+(10, 'Лев Гурьев', 'M3401', 'ФЦТ', 'Компьютерные системы', 'Интеллектуальные системы');
+INSERT INTO teachers VALUES
+(1, 'Анна Миронова'), (2, 'Павел Егоров'), (3, 'Софья Литвинова'), (4, 'Михаил Власов'), (5, 'Наталья Осипова');
+INSERT INTO disciplines VALUES
+(1, 'Линейная алгебра'), (2, 'Теория вероятностей'), (3, 'Базы данных'), (4, 'Математическая статистика');
+INSERT INTO streams VALUES
+(101, 1, 'Линейная алгебра · лекция A', 'lecture', 1, NULL),
+(102, 1, 'Линейная алгебра · практика A1', 'practice', 2, 101),
+(103, 1, 'Линейная алгебра · практика A2', 'practice', 3, 101),
+(201, 2, 'Теория вероятностей · лекция B', 'lecture', 3, NULL),
+(202, 2, 'Теория вероятностей · практика B1', 'practice', 4, 201),
+(301, 3, 'Базы данных · лекция C', 'lecture', 5, NULL),
+(302, 3, 'Базы данных · практика C1', 'practice', 5, 301),
+(401, 4, 'Математическая статистика · лекция D', 'lecture', 4, NULL);
+INSERT INTO enrollments VALUES
+(1, 101), (1, 102), (1, 301), (1, 302), (2, 101), (2, 103), (2, 301), (2, 302),
+(3, 101), (3, 102), (3, 301), (3, 302), (4, 101), (4, 103), (4, 301), (4, 302),
+(5, 201), (5, 202), (5, 401), (6, 201), (6, 202), (6, 401), (7, 201), (7, 202), (7, 401),
+(8, 201), (8, 202), (8, 401), (9, 301), (9, 302), (9, 201), (10, 301), (10, 302), (10, 201);
+INSERT INTO results VALUES
+(1, 1, 1, 102, '2026-02-10', 87, 5, 'graded'),
+(2, 2, 1, 103, '2026-02-10', 78, 4, 'graded'),
+(3, 3, 1, 102, '2026-02-11', 91, 5, 'graded'),
+(4, 4, 1, 103, '2026-02-11', 62, 3, 'graded'),
+(5, 5, 2, 202, '2026-02-14', 74, 4, 'graded'),
+(6, 6, 2, 202, '2026-02-14', 55, 3, 'graded'),
+(7, 7, 4, 401, '2026-02-18', 88, 5, 'graded'),
+(8, 8, 4, 401, '2026-02-18', NULL, NULL, 'absent'),
+(9, 9, 3, 302, '2026-02-21', 95, 5, 'graded'),
+(10, 10, 3, 302, '2026-02-21', 81, 4, 'graded'),
+(11, 3, 3, 302, '2026-02-21', 89, 5, 'graded'),
+(12, 4, 3, 302, '2026-02-21', 67, 3, 'graded'),
+(13, 1, 3, 302, '2026-02-21', 92, 5, 'graded'),
+(14, 2, 3, 302, '2026-02-21', NULL, NULL, 'unknown');`;
+
+const BLOCKS=['Выборка: SELECT, WHERE, ORDER BY, LIMIT','Агрегаты: COUNT, AVG, GROUP BY, HAVING','Соединения: JOIN и LEFT JOIN','Найдите ошибку','Проверьте запрос ИИ'];
+const TASKS=[
+{id:1,b:0,title:'Первый запрос',kind:'write',ordered:true,
+ text:'Выполните стартовый запрос — он показывает всю таблицу students. Затем измените его: выведите только имя, группу и факультет студентов (student_name, group_code, faculty) и отсортируйте по имени.',
+ starter:'SELECT *\nFROM students;',
+ ref:'SELECT student_name, group_code, faculty\nFROM students\nORDER BY student_name;',
+ hints:['Вместо * перечислите нужные столбцы через запятую.','Сортировка задаётся в конце запроса: ORDER BY student_name.'],
+ explain:'SELECT задаёт столбцы, FROM — таблицу, ORDER BY — порядок строк. Звёздочка удобна для разведки, но в отчёте лучше перечислять столбцы явно: так видно, что именно вы показываете.'},
+{id:2,b:0,title:'Один факультет',kind:'write',ordered:true,
+ text:'Выведите имя и группу студентов факультета ФЕН в алфавитном порядке.',
+ ref:"SELECT student_name, group_code\nFROM students\nWHERE faculty = 'ФЕН'\nORDER BY student_name;",
+ hints:["Условие пишется в WHERE: WHERE faculty = 'ФЕН'.","Строки в SQL пишут в одинарных кавычках. Регистр важен: 'фен' ничего не найдёт."],
+ explain:'WHERE отбирает строки до вывода. Текстовое значение сравнивается точно, с учётом регистра и пробелов.'},
+{id:3,b:0,title:'Пять лучших результатов',kind:'write',ordered:true,
+ text:'Выведите result_id, student_id и score_value для пяти результатов с самыми высокими баллами — от большего к меньшему.',
+ ref:'SELECT result_id, student_id, score_value\nFROM results\nWHERE score_value IS NOT NULL\nORDER BY score_value DESC\nLIMIT 5;',
+ hints:['Сортировка по убыванию — ORDER BY score_value DESC.','LIMIT 5 оставляет первые пять строк — уже после сортировки.'],
+ traps:[{sql:'SELECT result_id, student_id, score_value FROM results ORDER BY score_value LIMIT 5;',msg:'Похоже, сортировка идёт по возрастанию — сверху оказались пустые и самые низкие баллы. Добавьте DESC.'}],
+ explain:'Сначала сортировка, потом LIMIT. В DBeaver есть отличие: в PostgreSQL при DESC пустые значения (NULL) встают первыми, а в SQLite — последними. Поэтому в основной базе добавляйте WHERE score_value IS NOT NULL или NULLS LAST, иначе «топ» займут результаты без баллов.'},
+{id:4,b:0,title:'Результаты без оценки',kind:'write',ordered:false,
+ text:'Найдите записи results, в которых нет оценки (grade_value пустое). Выведите result_id, student_id и grade_status.',
+ ref:'SELECT result_id, student_id, grade_status\nFROM results\nWHERE grade_value IS NULL;',
+ hints:['Пустое значение в базе — это NULL.','Сравнение «= NULL» не работает: нужна проверка IS NULL.'],
+ traps:[{re:/=\s*null/i,msg:'Сравнение «= NULL» всегда даёт «неизвестно», поэтому строк нет. Пустые значения ищут через IS NULL.'}],
+ explain:'Таких записей две: неявка (absent) и неизвестный статус (unknown). Любое сравнение с NULL через =, <, > даёт «неизвестно», поэтому для пустых значений есть только IS NULL и IS NOT NULL.'},
+{id:5,b:0,title:'Две группы',kind:'write',ordered:true,
+ text:'Выведите имя и группу студентов из групп M3201 и M3302. Отсортируйте по группе, внутри группы — по имени.',
+ ref:"SELECT student_name, group_code\nFROM students\nWHERE group_code IN ('M3201', 'M3302')\nORDER BY group_code, student_name;",
+ hints:["Подойдёт OR: group_code = 'M3201' OR group_code = 'M3302'.","Короче через IN: group_code IN ('M3201', 'M3302'). Сортировка по двум столбцам: ORDER BY group_code, student_name."],
+ traps:[{re:/М\d{4}/,msg:'Коды групп начинаются с латинской буквы M, а в запросе — кириллическая «М». Внешне они одинаковые, но для базы это разные символы.'}],
+ explain:'IN — короткая запись нескольких условий через OR. Если в одном условии смешиваются AND и OR, ставьте скобки: без них смысл запроса может измениться.'},
+{id:6,b:1,title:'Студенты по факультетам',kind:'write',ordered:false,
+ text:'Посчитайте, сколько студентов на каждом факультете. Выведите факультет и число студентов.',
+ ref:'SELECT faculty, COUNT(*) AS students_count\nFROM students\nGROUP BY faculty;',
+ hints:['COUNT(*) считает строки.','Чтобы считать отдельно по факультетам, нужен GROUP BY faculty.'],
+ explain:'GROUP BY делит строки на группы с одинаковым факультетом, а COUNT(*) считает строки в каждой группе. Каждый столбец в SELECT должен быть либо в GROUP BY, либо внутри агрегатной функции.'},
+{id:7,b:1,title:'Статусы результатов',kind:'write',ordered:false,
+ text:'Сколько записей в results у каждого значения grade_status? Выведите статус и число записей.',
+ ref:'SELECT grade_status, COUNT(*) AS results_count\nFROM results\nGROUP BY grade_status;',
+ hints:['Группируйте по grade_status.','SELECT grade_status, COUNT(*) … GROUP BY grade_status.'],
+ explain:'graded — 12, absent — 1, unknown — 1. Перед расчётом средних полезно знать, сколько записей без оценки: они могут незаметно исказить вывод.'},
+{id:8,b:1,title:'Средний балл по дисциплинам',kind:'write',ordered:false,
+ text:'Для каждой дисциплины (discipline_id) посчитайте средний балл score_value и число аттестованных результатов. Учитывайте только результаты со статусом graded.',
+ ref:"SELECT discipline_id, AVG(score_value) AS avg_score, COUNT(*) AS graded_count\nFROM results\nWHERE grade_status = 'graded'\nGROUP BY discipline_id;",
+ hints:["Сначала отберите строки: WHERE grade_status = 'graded', потом GROUP BY discipline_id.",'В SELECT: discipline_id, AVG(score_value), COUNT(*).'],
+ traps:[{sql:'SELECT discipline_id, AVG(score_value), COUNT(*) FROM results GROUP BY discipline_id;',msg:'Средние верные, а счётчик — нет: в него попали неявки и неизвестные статусы. Отберите graded в WHERE.'}],
+ explain:'WHERE отбирает строки до группировки, поэтому неявки и неизвестные статусы не попадают ни в среднее, ни в счётчик. Округлять среднее не обязательно: проверка сравнивает числа с точностью до десятых.'},
+{id:9,b:1,title:'Порог через HAVING',kind:'write',ordered:false,
+ text:'Выведите discipline_id и число аттестованных (graded) результатов — только для дисциплин, где таких результатов не меньше четырёх.',
+ ref:"SELECT discipline_id, COUNT(*) AS graded_count\nFROM results\nWHERE grade_status = 'graded'\nGROUP BY discipline_id\nHAVING COUNT(*) >= 4;",
+ hints:['Условие на число строк в группе нельзя писать в WHERE: на этом шаге групп ещё нет.','После GROUP BY добавьте HAVING COUNT(*) >= 4.'],
+ traps:[{sql:"SELECT discipline_id, COUNT(*) FROM results WHERE grade_status = 'graded' GROUP BY discipline_id HAVING COUNT(*) > 4;",msg:'«Не меньше четырёх» — это >= 4. Со знаком > выпала дисциплина, у которой ровно четыре результата.'},{sql:'SELECT discipline_id, COUNT(*) FROM results GROUP BY discipline_id HAVING COUNT(*) >= 4;',msg:'Дисциплины подходят, но у одной счётчик завышен: посчитаны и результаты без оценки. Нужен фильтр graded.'}],
+ explain:'WHERE фильтрует строки, HAVING — готовые группы. Граница порога важна: с > вместо >= пропала бы дисциплина ровно с четырьмя результатами.'},
+{id:10,b:2,title:'Ведомость с именами',kind:'write',ordered:true,
+ text:'Покажите аттестованные (graded) результаты с именами студентов и названиями дисциплин: student_name, discipline_name, grade_value. Отсортируйте по названию дисциплины, затем по имени студента.',
+ ref:"SELECT s.student_name, d.discipline_name, r.grade_value\nFROM results r\nJOIN students s ON r.student_id = s.student_id\nJOIN disciplines d ON r.discipline_id = d.discipline_id\nWHERE r.grade_status = 'graded'\nORDER BY d.discipline_name, s.student_name;",
+ hints:['Имена лежат в students, названия — в disciplines. Присоедините их к results по student_id и discipline_id.','FROM results r JOIN students s ON r.student_id = s.student_id JOIN disciplines d ON r.discipline_id = d.discipline_id …'],
+ explain:'Каждый результат находит ровно одного студента и одну дисциплину, поэтому строк столько же, сколько результатов со статусом graded, — 12. Если после JOIN строк стало больше, чем в исходной таблице, ищите ошибку в условии соединения.'},
+{id:11,b:2,title:'Средний балл с названием',kind:'write',ordered:true,
+ text:'Для каждой дисциплины выведите её название и средний балл по аттестованным результатам. Отсортируйте от большего среднего к меньшему.',
+ ref:"SELECT d.discipline_name, AVG(r.score_value) AS avg_score\nFROM results r\nJOIN disciplines d ON r.discipline_id = d.discipline_id\nWHERE r.grade_status = 'graded'\nGROUP BY d.discipline_id, d.discipline_name\nORDER BY avg_score DESC;",
+ hints:['Соедините results с disciplines и сгруппируйте по дисциплине.','Отсортировать можно по псевдониму: ORDER BY avg_score DESC.'],
+ explain:'Группируйте по ключу и названию вместе (discipline_id, discipline_name): две разные дисциплины с одинаковым названием не склеятся в одну группу. Если в PostgreSQL ROUND(AVG(…), 2) выдаст ошибку о типе, приведите значение к numeric: ROUND(AVG(…)::numeric, 2).'},
+{id:12,b:2,title:'Нагрузка преподавателей',kind:'write',ordered:true,
+ text:'Для каждого преподавателя посчитайте число результатов в потоках, которые он ведёт (results.stream_id → streams.teacher_id). В списке должны быть все преподаватели, даже те, у кого результатов нет. Выведите teacher_name и число результатов; отсортируйте по числу результатов по убыванию, при равенстве — по имени.',
+ ref:'SELECT t.teacher_name, COUNT(r.result_id) AS results_count\nFROM teachers t\nLEFT JOIN streams s ON s.teacher_id = t.teacher_id\nLEFT JOIN results r ON r.stream_id = s.stream_id\nGROUP BY t.teacher_id, t.teacher_name\nORDER BY results_count DESC, t.teacher_name;',
+ hints:['Обычный JOIN потеряет преподавателя без результатов. Нужен LEFT JOIN по цепочке teachers → streams → results.','Считайте COUNT(r.result_id), а не COUNT(*): COUNT(*) посчитает и пустую строку, которую добавил LEFT JOIN.'],
+ traps:[{sql:'SELECT t.teacher_name, COUNT(r.result_id) FROM teachers t JOIN streams s ON s.teacher_id = t.teacher_id JOIN results r ON r.stream_id = s.stream_id GROUP BY t.teacher_id, t.teacher_name ORDER BY 2 DESC, 1;',msg:'Не хватает одного преподавателя — обычный JOIN выбросил того, у кого нет результатов. Замените соединения на LEFT JOIN.'},{sql:'SELECT t.teacher_name, COUNT(*) FROM teachers t LEFT JOIN streams s ON s.teacher_id = t.teacher_id LEFT JOIN results r ON r.stream_id = s.stream_id GROUP BY t.teacher_id, t.teacher_name ORDER BY 2 DESC, 1;',msg:'Все преподаватели на месте, но числа завышены: COUNT(*) считает и пустые строки, которые добавил LEFT JOIN. Считайте COUNT(r.result_id).'}],
+ explain:'Анна Миронова ведёт только лекционный поток, а результаты привязаны к практикам — поэтому у неё 0. Без LEFT JOIN её бы не было в списке, а с COUNT(*) у неё оказалась бы 1. Это та же логика, что в лабораторной: объекты без связей должны остаться видны.'},
+{id:13,b:2,title:'★ Записаны, но без результата',kind:'write',ordered:true,
+ text:'Найдите студентов, которые записаны на поток 201 («Теория вероятностей · лекция B»), но не имеют ни одного результата по этой дисциплине (discipline_id = 2). Выведите student_name в алфавитном порядке.',
+ ref:'SELECT s.student_name\nFROM enrollments e\nJOIN students s ON s.student_id = e.student_id\nLEFT JOIN results r ON r.student_id = e.student_id AND r.discipline_id = 2\nWHERE e.stream_id = 201 AND r.result_id IS NULL\nORDER BY s.student_name;',
+ hints:['Начните с enrollments, где stream_id = 201, и присоедините students.','Присоедините results через LEFT JOIN с двумя условиями в ON: тот же студент и discipline_id = 2. Оставьте строки, где r.result_id IS NULL. Подойдут и NOT IN или NOT EXISTS.'],
+ traps:[{empty:true,msg:'Пустой результат. Частая причина: условие на results (например, r.discipline_id = 2) стоит в WHERE. Для строк без пары там NULL, и WHERE их отбрасывает. Перенесите это условие в ON.'}],
+ explain:'Это «антисоединение»: LEFT JOIN + IS NULL находит строки без пары. Условие discipline_id = 2 нужно ставить в ON, а не в WHERE: в WHERE оно отбросило бы строки, где результата нет, и ответ оказался бы пустым.'},
+{id:14,b:3,title:'Факультеты, где не меньше трёх студентов',kind:'fix',ordered:false,
+ text:'Запрос должен вывести факультеты, где учатся не меньше трёх студентов, но падает с ошибкой. Выполните его, прочитайте сообщение и исправьте.',
+ starter:'SELECT faculty, COUNT(*) AS students_count\nFROM students\nWHERE COUNT(*) >= 3\nGROUP BY faculty;',
+ ref:'SELECT faculty, COUNT(*) AS students_count\nFROM students\nGROUP BY faculty\nHAVING COUNT(*) >= 3;',
+ hints:['Сообщение misuse of aggregate значит: агрегатная функция стоит там, где её нельзя посчитать.','Условие на COUNT(*) переносится в HAVING после GROUP BY.'],
+ explain:'Порядок выполнения запроса: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY. На шаге WHERE групп ещё нет и считать COUNT не по чему, поэтому условия на агрегаты живут в HAVING.'},
+{id:15,b:3,title:'Число студентов в группах ФТМИ',kind:'fix',ordered:false,
+ text:'Нужно число студентов в каждой группе факультета ФТМИ. Запрос выполняется без ошибки, но ответ неверный. Найдите, чего не хватает.',
+ starter:"SELECT group_code, COUNT(*) AS students_count\nFROM students\nWHERE faculty = 'ФТМИ';",
+ ref:"SELECT group_code, COUNT(*) AS students_count\nFROM students\nWHERE faculty = 'ФТМИ'\nGROUP BY group_code;",
+ hints:['Сколько строк вернул запрос и сколько групп на ФТМИ? Загляните в таблицу students.','Не хватает GROUP BY group_code.'],
+ traps:[{sql:"SELECT group_code, COUNT(*) FROM students WHERE faculty = 'ФТМИ';",msg:'Одна строка вместо строки на каждую группу: без GROUP BY функция COUNT(*) считает все отобранные строки сразу.'}],
+ explain:'SQLite прощает эту ошибку и возвращает одну строку со случайной группой и общим числом — 4. PostgreSQL в DBeaver такой запрос не выполнит: столбец group_code должен быть в GROUP BY. Вывод: «запрос выполнился» ещё не значит «ответ верный».'},
+{id:16,b:3,title:'Ведомость по «Базам данных»',kind:'fix',ordered:true,
+ text:'Нужны все результаты по «Базам данных» (discipline_id = 3) с именами студентов — от высокого балла к низкому. Запрос выполняется, но с результатом что-то не так. Проверьте несколько строк вручную и исправьте.',
+ starter:'SELECT s.student_name, r.score_value, r.grade_value\nFROM results r\nJOIN students s ON r.discipline_id = s.student_id\nWHERE r.discipline_id = 3\nORDER BY r.score_value DESC;',
+ ref:'SELECT s.student_name, r.score_value, r.grade_value\nFROM results r\nJOIN students s ON r.student_id = s.student_id\nWHERE r.discipline_id = 3\nORDER BY r.score_value DESC;',
+ hints:['Почему у всех строк одно и то же имя?','Условие соединения сравнивает не те поля: студента нужно искать по r.student_id.'],
+ explain:'В ON номер дисциплины сравнивался с номером студента: у всех строк discipline_id = 3, и все они «нашли» студента № 3. Такие ошибки не вызывают сообщений — их видно только при проверке результата: повторяющиеся имена, неожиданное число строк, значения, которых не должно быть.'},
+{id:17,b:4,title:'Сколько студентов на дисциплине',kind:'ai',ordered:false,
+ ask:'Сколько студентов записано на каждую дисциплину?',
+ aiSql:'SELECT d.discipline_name, COUNT(*) AS students_count\nFROM enrollments e\nJOIN streams s ON e.stream_id = s.stream_id\nJOIN disciplines d ON s.discipline_id = d.discipline_id\nGROUP BY d.discipline_name;',
+ verdict:'wrong',verdictWhy:'Запрос считает записи на потоки, а не студентов. Студент, записанный на лекцию и практику одной дисциплины, учтён дважды: у «Баз данных» получилось 12, хотя в базе всего 10 студентов.',
+ text:'Исправьте запрос так, чтобы он считал студентов, а не записи.',
+ ref:'SELECT d.discipline_name, COUNT(DISTINCT e.student_id) AS students_count\nFROM enrollments e\nJOIN streams s ON e.stream_id = s.stream_id\nJOIN disciplines d ON s.discipline_id = d.discipline_id\nGROUP BY d.discipline_name;',
+ hints:['Сколько всего студентов в базе? Может ли на одну дисциплину записаться больше?','Нужно считать разных студентов: COUNT(DISTINCT e.student_id).'],
+ traps:[{sql:'SELECT d.discipline_name, COUNT(*) FROM enrollments e JOIN streams s ON e.stream_id = s.stream_id JOIN disciplines d ON s.discipline_id = d.discipline_id GROUP BY d.discipline_name;',msg:'Это всё ещё ответ ИИ: записи на лекцию и практику считаются по отдельности.'}],
+ explain:'Соединение «один ко многим» размножает строки: у студента по дисциплине может быть две записи — на лекцию и на практику. COUNT(DISTINCT …) считает уникальных студентов. Простая проверка на здравый смысл: число на дисциплину не может превышать число студентов в базе.'},
+{id:18,b:4,title:'Средняя оценка по дисциплинам',kind:'ai',ordered:false,
+ ask:'Какая средняя оценка по каждой дисциплине?',
+ aiSql:'SELECT d.discipline_name, ROUND(AVG(COALESCE(r.grade_value, 0)), 2) AS avg_grade\nFROM results r\nJOIN disciplines d ON r.discipline_id = d.discipline_id\nGROUP BY d.discipline_name;',
+ verdict:'wrong',verdictWhy:'COALESCE(r.grade_value, 0) превращает отсутствующую оценку в ноль. Неявка и неизвестный статус — не нулевые оценки: по «Математической статистике» среднее упало с 5,0 до 2,5.',
+ text:'Исправьте запрос: средняя оценка должна считаться только по выставленным оценкам.',
+ ref:"SELECT d.discipline_name, ROUND(AVG(r.grade_value), 2) AS avg_grade\nFROM results r\nJOIN disciplines d ON r.discipline_id = d.discipline_id\nWHERE r.grade_status = 'graded'\nGROUP BY d.discipline_name;",
+ hints:['Что делает COALESCE(r.grade_value, 0) со строкой, где оценки нет?','Уберите COALESCE: AVG сам пропускает NULL. Можно и явно отобрать graded.'],
+ traps:[{sql:'SELECT d.discipline_name, ROUND(AVG(COALESCE(r.grade_value, 0)), 2) FROM results r JOIN disciplines d ON r.discipline_id = d.discipline_id GROUP BY d.discipline_name;',msg:'Это всё ещё ответ ИИ: пустые оценки считаются нулями.'}],
+ explain:'Что считать нулём — содержательное решение, а не техническое. Если неявки важны, их показывают отдельным столбцом, например COUNT(*) - COUNT(r.grade_value), а не подмешивают в среднее.'},
+{id:19,b:4,title:'Потоки преподавателей',kind:'ai',ordered:false,
+ ask:'Сколько потоков ведёт каждый преподаватель? Нужны все преподаватели, даже без потоков.',
+ aiSql:'SELECT t.teacher_name, COUNT(s.stream_id) AS streams_count\nFROM teachers t\nLEFT JOIN streams s ON s.teacher_id = t.teacher_id\nGROUP BY t.teacher_id, t.teacher_name\nORDER BY streams_count DESC;',
+ verdict:'right',verdictWhy:'Запрос верный: LEFT JOIN сохраняет всех преподавателей, а COUNT(s.stream_id) не считает пустую пару. Но «выглядит верно» — ещё не проверка.',
+ text:'Подтвердите проверкой: напишите запрос, который считает все потоки в таблице streams. Сумма столбца streams_count в ответе ИИ (2 + 2 + 2 + 1 + 1 = 8) должна совпасть с вашим числом.',
+ controlStarter:'-- Проверочный запрос: сколько всего потоков?\n',
+ ref:'SELECT COUNT(*) AS streams_total\nFROM streams;',
+ hints:['Нужна одна строка с одним числом.','SELECT COUNT(*) FROM streams;'],
+ explain:'Контрольная сумма — простой способ проверить агрегат: 8 потоков в таблице = 8 потоков в сумме по преподавателям. Если бы числа разошлись, где-то потерялись или задвоились строки.'}
+];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KW=/\b(SELECT|FROM|WHERE|JOIN|LEFT|INNER|ON|AND|OR|NOT|IN|IS|NULL|AS|GROUP|BY|HAVING|ORDER|ASC|DESC|LIMIT|COUNT|SUM|AVG|MIN|MAX|DISTINCT|ROUND|COALESCE)\b/g;
+const hl=sql=>sql.split(/('(?:[^']|'')*')/).map((p,i)=>i%2?'<span class="s">'+esc(p)+'</span>':esc(p).replace(KW,'<b class="k">$1</b>').replace(/\b(\d+(?:\.\d+)?)\b/g,'<span class="n">$1</span>')).join('');
+const fmtNum=v=>Number.isInteger(v)?String(v):String(Math.round(v*100)/100);
+function rowsWord(n){const a=Math.abs(n)%100,b=a%10;return n+' '+(a>10&&a<20?'строк':b===1?'строка':b>=2&&b<=4?'строки':'строк')}
+function tableHTML(res){
+  if(!res||!res.columns.length)return '<div class="neutral">Запрос выполнен, но не вернул таблицу. Для ответа нужен SELECT.</div>';
+  const head='<tr>'+res.columns.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr>';
+  const body=res.values.length?res.values.map(r=>'<tr>'+r.map(v=>v===null?'<td class="null">NULL</td>':'<td>'+esc(typeof v==='number'?fmtNum(v):v)+'</td>').join('')+'</tr>').join(''):'<tr><td colspan="'+res.columns.length+'" class="null">0 строк</td></tr>';
+  return '<div class="rcount">'+rowsWord(res.values.length)+' · '+res.columns.length+' столб.</div><div class="rt-wrap"><table class="rt"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>';
+}
+
+/* ---------- база ---------- */
+let SQL=null;
+const GRADES_SQL=DB_SQL.replace(/CREATE TABLE (\w+)/g,'CREATE TABLE grades.$1').replace(/INSERT INTO (\w+)/g,'INSERT INTO grades.$1');
+function fresh(){const d=new SQL.Database();d.run("ATTACH DATABASE ':memory:' AS grades;");d.run(GRADES_SQL);return d}
+function exec(sql){const d=fresh();try{const r=d.exec(sql);return {res:r.length?r[r.length-1]:{columns:[],values:[]}}}catch(e){return {err:e.message}}finally{d.close()}}
+function errHint(m){let x;
+  if(x=m.match(/no such column: (\S+)/))return 'Нет столбца «'+x[1]+'». Сверьте имя со схемой и проверьте псевдоним таблицы (например, s. или r.).';
+  if(x=m.match(/no such table: (\S+)/))return 'Нет таблицы «'+x[1]+'». Таблицы базы: students, teachers, disciplines, streams, enrollments, results.';
+  if(/misuse of aggregate/.test(m))return 'Агрегатную функцию (COUNT, SUM, AVG) нельзя использовать в WHERE: условия на группы пишут в HAVING после GROUP BY.';
+  if(x=m.match(/ambiguous column name: (\S+)/))return 'Столбец «'+x[1]+'» есть в нескольких таблицах запроса. Уточните, из какой: например, r.'+x[1].replace(/^.*\./,'')+'.';
+  if(/incomplete input/.test(m))return 'Запрос оборван: не закрыта скобка или кавычка.';
+  if(/syntax error/.test(m))return 'Синтаксическая ошибка. Проверьте запятые, кавычки и порядок частей: SELECT → FROM → JOIN → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT.';
+  return ''}
+const norm=v=>v===null?'∅':typeof v==='number'?String(Math.round(v*10)/10):String(v).trim();
+const rowKey=r=>JSON.stringify(r.map(norm));
+function sameResult(a,b,ordered){
+  if(a.columns.length!==b.columns.length||a.values.length!==b.values.length)return false;
+  const A=a.values.map(rowKey),B=b.values.map(rowKey);
+  if(!ordered){A.sort();B.sort()}
+  return A.every((k,i)=>k===B[i]);
+}
+function compare(u,r,ordered){
+  if(!u.columns.length)return {ok:false,msg:'Запрос ничего не вернул в виде таблицы. Для ответа нужен SELECT.'};
+  if(u.columns.length!==r.columns.length)return {ok:false,msg:'В результате '+u.columns.length+' столб., а нужно '+r.columns.length+' — в таком порядке: '+r.columns.join(', ')+'. Перечитайте условие: какие поля просят вывести?'};
+  const U=u.values.map(rowKey),R=r.values.map(rowKey);
+  if(U.length>R.length)return {ok:false,msg:'Строк у вас '+U.length+', а должно быть '+R.length+'. Лишние строки обычно значат, что не хватает условия в WHERE, забыт DISTINCT или соединение размножило строки.'};
+  if(U.length<R.length)return {ok:false,msg:'Строк у вас '+U.length+', а должно быть '+R.length+'. Проверьте условия отбора, группировку (GROUP BY) и тип соединения: обычный JOIN выбрасывает строки без пары.'};
+  const Us=U.slice().sort(),Rs=R.slice().sort();
+  if(Us.some((k,i)=>k!==Rs[i])){const bad=u.values.find(row=>!Rs.includes(rowKey(row)));return {ok:false,msg:'Число строк совпадает, но значения отличаются. Например, строки ('+bad.map(v=>v===null?'NULL':typeof v==='number'?fmtNum(v):v).join(', ')+') в ожидаемом ответе нет. Проверьте условия, формулы и порядок столбцов.'}}
+  if(ordered&&U.some((k,i)=>k!==R[i]))return {ok:false,msg:'Строки верные, но порядок другой. Проверьте ORDER BY: по каким столбцам и в каком направлении сортировать.'};
+  return {ok:true};
+}
+
+/* ---------- состояние ---------- */
+const KEY='topic08_sql_trainer_v1';
+let state={cur:1,t:{}};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.t)state=s}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}};
+const ts=id=>state.t[id]||(state.t[id]={});
+const REF={},TRAPS={};
+
+/* ---------- схема ---------- */
+function renderSchema(){
+  const d=fresh(),tables=['students','teachers','disciplines','streams','enrollments','results'];
+  $('schema').innerHTML=tables.map(t=>{const cols=d.exec('PRAGMA grades.table_info('+t+')')[0].values,fks=(d.exec('PRAGMA grades.foreign_key_list('+t+')')[0]||{values:[]}).values,n=d.exec('SELECT COUNT(*) FROM '+t)[0].values[0][0];
+    return '<div class="tbox"><h4>'+t+'<span>'+rowsWord(n)+'</span></h4>'+cols.map(c=>{const fk=fks.find(f=>f[3]===c[1]),cls=c[5]?'pk':fk?'fk':'';return '<span class="col '+cls+'" role="button" tabindex="0" data-ins="'+c[1]+'" title="'+(c[5]?'первичный ключ':'')+(fk?'внешний ключ → '+fk[2]+'.'+fk[4]:'')+'">'+c[1]+(c[5]?'<sup>PK</sup>':'')+(fk?'<sup>FK</sup>':'')+'</span>'}).join('')+'</div>'}).join('');
+  const rel=[];tables.forEach(t=>{const f=d.exec('PRAGMA grades.foreign_key_list('+t+')');if(f[0])f[0].values.forEach(v=>rel.push(t+'.'+v[3]+' → '+v[2]+'.'+v[4]))});
+  $('links').innerHTML='<strong>Связи:</strong> '+rel.map(esc).join(' · ');
+  d.close();
+  $('schema').querySelectorAll('[data-ins]').forEach(el=>{const ins=()=>insertText(el.dataset.ins);el.onclick=ins;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();ins()}}});
+}
+function insertText(t){const ed=$('editor');if(!ed)return;const s=ed.selectionStart,e=ed.selectionEnd;ed.value=ed.value.slice(0,s)+t+ed.value.slice(e);ed.selectionStart=ed.selectionEnd=s+t.length;ed.focus();ed.dispatchEvent(new Event('input'))}
+
+/* ---------- список заданий ---------- */
+function renderList(){
+  const solved=TASKS.filter(t=>ts(t.id).solved).length;
+  let h='<div class="progress">Решено '+solved+' из '+TASKS.length+'</div><div class="meter"><span style="width:'+(100*solved/TASKS.length)+'%"></span></div>';
+  BLOCKS.forEach((b,bi)=>{h+='<div class="bl">'+(bi+1)+'. '+esc(b)+'</div>';TASKS.filter(t=>t.b===bi).forEach(t=>{const s=ts(t.id);h+='<button type="button" data-id="'+t.id+'" aria-current="'+(state.cur===t.id)+'"><span class="st">'+(s.solved?'✓':s.shown?'◐':'')+'</span><span>'+t.id+'. '+esc(t.title)+'</span></button>'})});
+  h+='<div class="bl">Свободная практика</div><button type="button" data-id="0" aria-current="'+(state.cur===0)+'"><span class="st"></span><span>Песочница</span></button>';
+  $('tasklist').innerHTML=h;
+  $('tasklist').querySelectorAll('button').forEach(b=>b.onclick=()=>{state.cur=+b.dataset.id;save();renderList();renderCard();if(window.innerWidth<900)$('card').scrollIntoView({behavior:'smooth',block:'start'})});
+}
+
+/* ---------- карточка задания ---------- */
+function renderCard(){
+  const c=$('card');
+  if(state.cur===0){
+    const s=ts(0);
+    c.innerHTML='<span class="tag">Свободная практика</span><h2>Песочница</h2><p>Пишите любые запросы к учебной базе. Проверки нет — это место для экспериментов и для ответов, которые предложил ИИ.</p>'+editorHTML(s.code!=null?s.code:'SELECT *\nFROM results\nLIMIT 10;')+'<div class="toolbar"><button class="primary" type="button" id="runBtn">Выполнить</button><span class="small">или <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd></span></div><div id="out"></div>';
+    wireEditor(0);$('runBtn').onclick=()=>runOnly(0);sendHeight();return;
+  }
+  const t=TASKS.find(x=>x.id===state.cur),s=ts(t.id);
+  const tag=t.kind==='fix'?'<span class="tag fix">Найдите ошибку</span>':t.kind==='ai'?'<span class="tag ai">Проверьте запрос ИИ</span>':'<span class="tag">'+esc(BLOCKS[t.b])+'</span>';
+  let h=tag+'<h2>'+t.id+'. '+esc(t.title)+'</h2>';
+  if(t.kind==='ai'){
+    h+='<div class="ask"><div class="lbl">Вопрос к ИИ-помощнику</div>'+esc(t.ask)+'</div><p class="small">Учебный пример: такой запрос мог бы предложить ИИ-помощник. Выполните его в редакторе ниже, посмотрите на результат и вынесите вердикт.</p><pre class="sql">'+hl(t.aiSql)+'</pre><div class="verdict" id="verdict"><button type="button" data-v="right">Запрос решает задачу верно</button><button type="button" data-v="wrong">В запросе есть ошибка</button></div><div id="vfb" aria-live="polite"></div><div id="afterVerdict"'+(s.verdict?'':' class="hidden"')+'><p><strong>Задание.</strong> '+esc(t.text)+'</p></div>';
+  } else h+='<p>'+esc(t.text)+'</p>';
+  const startCode=s.code!=null?s.code:t.kind==='ai'?t.aiSql:(t.starter||'');
+  h+=editorHTML(startCode)+'<div class="toolbar"><button class="primary" type="button" id="runBtn">Выполнить</button><button type="button" id="checkBtn"'+(t.kind==='ai'&&!s.verdict?' disabled title="Сначала вынесите вердикт"':'')+'>Проверить ответ</button><button type="button" id="hintBtn">Подсказка</button><button type="button" id="refBtn"'+(s.tried||s.solved?'':' disabled title="Станет доступно после первой проверки"')+'>Эталон</button><button type="button" id="resetBtn">Сбросить</button><button type="button" id="aiBtn" title="Скопировать схему и условие, чтобы спросить ИИ">Задание для ИИ</button></div><div class="small" id="aiMsg" aria-live="polite"></div><div id="hints"></div><div id="out"></div><div id="explain"></div>';
+  c.innerHTML=h;
+  wireEditor(t.id);
+  (s.hints||0)&&showHints(t,s.hints);
+  if(t.kind==='ai'){
+    $('verdict').querySelectorAll('button').forEach(b=>b.onclick=()=>verdict(t,b.dataset.v,b));
+    if(s.verdict)paintVerdict(t);
+  }
+  $('runBtn').onclick=()=>runOnly(t.id);
+  $('checkBtn').onclick=()=>check(t);
+  $('hintBtn').onclick=()=>{s.hints=Math.min((s.hints||0)+1,t.hints.length);save();showHints(t,s.hints)};
+  $('refBtn').onclick=()=>{s.shown=true;save();renderList();$('explain').innerHTML='<div class="explain"><b>Один из верных вариантов</b><pre class="sql">'+hl(t.ref)+'</pre>'+esc(t.explain)+'</div>';sendHeight()};
+  $('resetBtn').onclick=()=>{const ed=$('editor');ed.value=t.kind==='ai'?(t.verdict==='right'&&s.verdict?t.controlStarter:t.aiSql):(t.starter||'');ed.dispatchEvent(new Event('input'));$('out').innerHTML='';sendHeight()};
+  $('aiBtn').onclick=()=>copyForAI(t);
+  if(s.solved)$('explain').innerHTML='<div class="explain"><b>Решено.</b> '+esc(t.explain)+'</div>';
+  sendHeight();
+}
+function editorHTML(code){return '<div class="editor-label"><label for="editor">SQL-запрос</label><span>Можно писать <code>students</code> или <code>grades.students</code> — как в DBeaver</span></div><textarea class="editor" id="editor" spellcheck="false" autocomplete="off" autocapitalize="off">'+esc(code)+'</textarea>'}
+function wireEditor(id){const ed=$('editor'),s=ts(id);
+  ed.addEventListener('input',()=>{s.code=ed.value;save()});
+  ed.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();runOnly(id);return}
+    if(e.key==='Tab'&&!e.shiftKey){e.preventDefault();insertText('  ')}
+  });}
+function showHints(t,n){$('hints').innerHTML=t.hints.slice(0,n).map((h,i)=>'<div class="hint"><strong>Подсказка '+(i+1)+'.</strong> '+esc(h)+'</div>').join('')+(n>=t.hints.length?'':'');sendHeight()}
+function warnQuotes(sql){return /"[^"]*[А-Яа-яЁё][^"]*"/.test(sql)?'<div class="hint">Строковые значения пишут в одинарных кавычках: <code>\'ФЕН\'</code>. В PostgreSQL двойные кавычки означают имя столбца, и такой запрос в DBeaver упадёт.</div>':''}
+function runOnly(id){const sql=$('editor').value,r=exec(sql);
+  $('out').innerHTML=r.err?'<div class="wrong"><strong>Ошибка:</strong> <code>'+esc(r.err)+'</code><br>'+esc(errHint(r.err))+'</div>':warnQuotes(sql)+tableHTML(r.res);sendHeight()}
+function check(t){
+  const s=ts(t.id),sql=$('editor').value,r=exec(sql);s.tried=true;save();$('refBtn').disabled=false;$('refBtn').removeAttribute('title');
+  if(r.err){$('out').innerHTML='<div class="wrong"><strong>Запрос не выполнился:</strong> <code>'+esc(r.err)+'</code><br>'+esc(errHint(r.err))+'</div>';sendHeight();return}
+  const cmp=compare(r.res,REF[t.id],t.ordered);let msg;
+  if(cmp.ok){s.solved=true;save();renderList();msg='<div class="correct"><strong>Верно!</strong> Результат совпал с эталоном.</div>';$('explain').innerHTML='<div class="explain"><b>Почему так.</b> '+esc(t.explain)+'</div>'}
+  else{const trap=(TRAPS[t.id]||[]).find(x=>x.res?sameResult(r.res,x.res,false):x.re?x.re.test(sql):x.empty&&!r.res.values.length);
+    msg='<div class="wrong"><strong>Пока не совпадает.</strong> '+esc(trap?trap.msg:cmp.msg)+'</div>'}
+  $('out').innerHTML=msg+warnQuotes(sql)+'<p class="small">Ваш результат:</p>'+tableHTML(r.res);sendHeight();
+}
+function verdict(t,v,btn){const s=ts(t.id);if(s.verdict)return;s.verdict=v;s.verdictOk=v===t.verdict;save();
+  if(t.verdict==='right'){const ed=$('editor');ed.value=t.controlStarter;ed.dispatchEvent(new Event('input'))}
+  paintVerdict(t)}
+function paintVerdict(t){const s=ts(t.id);
+  $('verdict').querySelectorAll('button').forEach(b=>{b.disabled=true;if(b.dataset.v===t.verdict)b.classList.add('right');else if(b.dataset.v===s.verdict)b.classList.add('miss')});
+  $('vfb').className=s.verdictOk?'correct':'wrong';$('vfb').innerHTML=(s.verdictOk?'<strong>Верный вердикт.</strong> ':'<strong>Вердикт неверный.</strong> ')+esc(t.verdictWhy);
+  $('afterVerdict').classList.remove('hidden');$('checkBtn').disabled=false;$('checkBtn').removeAttribute('title');sendHeight()}
+function copyForAI(t){
+  const text='Схема учебной базы (SQLite; в PostgreSQL та же структура в схеме grades):\n\n'+DB_SQL.split('INSERT INTO')[0].trim()+"\n\nЗначения results.grade_status: 'graded' — оценка выставлена, 'absent' — неявка, 'unknown' — не определён.\n\nЗадание: "+(t.kind==='ai'?t.ask+' '+t.text:t.text)+'\n\nНапиши один SQL-запрос, используя только эти таблицы и поля. Объясни, что делает каждая часть запроса.';
+  const ok=()=>{$('aiMsg').textContent='Схема и условие скопированы. Вставьте их в чат с ИИ, а ответ — в редактор и проверьте.'},fail=()=>{$('aiMsg').textContent='Не удалось скопировать автоматически.'};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(ok,fail);else fail()}
+
+/* ---------- высота для iframe в Moodle ---------- */
+function sendHeight(){try{parent.postMessage({type:'topic08_sql_queries',height:document.documentElement.scrollHeight},'*')}catch(e){}}
+window.addEventListener('load',sendHeight);window.addEventListener('resize',sendHeight);document.addEventListener('toggle',sendHeight,true);
+
+/* ---------- загрузка sql.js ---------- */
+const CDN=['https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/','https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/'];
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+(async()=>{
+  for(const base of CDN){try{if(!window.initSqlJs)await loadScript(base+'sql-wasm.js');SQL=await initSqlJs({locateFile:f=>base+f});break}catch(e){}}
+  if(!SQL){$('engine').className='wrong';$('engine').textContent='Не удалось загрузить SQL-движок. Проверьте подключение к интернету и обновите страницу.';return}
+  TASKS.forEach(t=>{REF[t.id]=exec(t.ref).res;TRAPS[t.id]=(t.traps||[]).map(x=>x.sql?{res:exec(x.sql).res,msg:x.msg}:x)});
+  $('engine').classList.add('hidden');renderSchema();$('layout').classList.remove('hidden');
+  if(state.cur!==0&&!TASKS.some(t=>t.id===state.cur))state.cur=1;
+  renderList();renderCard();
+})();
+})();
+</script></body></html>

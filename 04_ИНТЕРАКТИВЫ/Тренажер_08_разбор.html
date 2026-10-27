@@ -1,0 +1,842 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Тренажёр 08·1 · Разбор готового SQL-кода</title><style>
+:root{--ink:#18312d;--mint:#097b72;--bg:#f2f5f3;--paper:#fff;--muted:#59706d;--line:#dbe5df;--soft:#e9f4ef;--ochre:#f8f0df;--red:#9a4f35}
+*{box-sizing:border-box}body{background:var(--bg);color:var(--ink);font:16px/1.67 system-ui,-apple-system,'Segoe UI',Arial,sans-serif;margin:0}a{color:var(--mint);text-decoration:none}a:hover{text-decoration:underline}header{background:#103e37;color:#f1fbf6;padding:26px max(18px,calc((100vw - 1100px)/2));}header .kicker{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;opacity:.78}header h1{color:#f3fbf6;font-size:27px;line-height:1.19;margin:8px 0 7px}header p{margin:0;max-width:800px;opacity:.86}nav{max-width:1100px;margin:auto;padding:13px 19px;color:var(--muted);font-size:14px}nav a{margin-right:20px}main{max-width:1020px;margin:18px auto 68px;background:var(--paper);border:1px solid var(--line);border-radius:15px;box-shadow:0 10px 28px #16362b0e;padding:clamp(24px,5vw,62px)}h1,h2,h3{color:#153d34;line-height:1.24}h2{font-size:24px;margin-top:1.7em;padding-top:.18em;border-bottom:1px solid var(--line);padding-bottom:9px}h3{font-size:19px;margin-top:1.2em}p{max-width:860px;margin:1em 0}li{margin:.35em 0}strong{color:#0d6257}code{font:0.91em ui-monospace,SFMono-Regular,Consolas,'DejaVu Sans Mono',monospace;background:#eef2ef;padding:2px 5px;border-radius:4px}.callout{background:var(--ochre);border-radius:9px;padding:15px 20px;margin:22px 0}.small{font-size:13px;color:var(--muted)}.footer{margin-top:42px;border-top:1px solid var(--line);padding-top:13px;color:var(--muted);font-size:12px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}button,input{font:inherit;padding:10px 14px;border:1px solid #c5dcd1;border-radius:8px;background:white;color:var(--ink)}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #e4ad45;outline-offset:2px}button.primary{background:var(--mint);color:white;border-color:var(--mint)}button:disabled{opacity:.55;cursor:default}.correct{background:#e3f4e9;padding:13px 17px;border-radius:10px;border:1px solid #7eae90;margin:12px 0}.wrong{background:#fff0e7;padding:13px 17px;border-radius:10px;border:1px solid #d0a28b;margin:12px 0}.neutral{background:#f4f7f5;padding:13px 17px;border-radius:10px;border:1px solid var(--line);margin:12px 0}
+.video-stub{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:22px;align-items:center;border:1px dashed #9fc4b3;background:#f4faf7;border-radius:13px;padding:18px;margin:22px 0}.video-stub .frame{aspect-ratio:16/9;border-radius:10px;background:linear-gradient(135deg,#103e37,#1f6457);color:#d9f1e7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:13px;text-align:center;padding:12px}.video-stub .play{width:54px;height:54px;border-radius:50%;border:2px solid #d9f1e7;display:flex;align-items:center;justify-content:center;font-size:20px;padding-left:4px}.video-stub h3{margin:0 0 4px;font-size:18px}.video-stub ol{margin:8px 0 0;padding-left:20px;font-size:14px}.video-stub li{margin:.2em 0}
+.variants{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}.variants button{text-align:left;padding:15px;line-height:1.35;border-radius:11px;background:#f7faf8}.variants button b{display:block;font-size:17px;margin-bottom:4px;color:#153d34}.variants button span{font-size:13px;color:var(--muted)}.variants button[aria-pressed="true"]{background:#103e37;border-color:#103e37}.variants button[aria-pressed="true"] b,.variants button[aria-pressed="true"] span{color:#eafaf2}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin:26px 0 8px;padding:0;list-style:none}.steps button{font-size:14px;padding:8px 13px;border-radius:30px}.steps button[aria-selected="true"]{background:var(--mint);color:#fff;border-color:var(--mint)}.steps button .tick{color:#2c8a5c;font-weight:800}.steps button[aria-selected="true"] .tick{color:#d8ffe9}
+pre.sql{background:#112d2b;color:#d9eee7;padding:16px 18px;overflow:auto;border-radius:9px;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;margin:12px 0;white-space:pre}pre.sql .k{color:#8fe0c2;font-weight:700}pre.sql .s{color:#f3d58f}pre.sql .n{color:#f5b79e}pre.sql .c{color:#8aa79f}pre.sql .chg{display:inline-block;width:100%;background:#2d5a3f;border-radius:3px}
+.tables{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.tcard{border:1px solid var(--line);border-radius:11px;padding:14px 16px;background:#fbfdfc}.tcard h4{margin:0 0 8px;font:700 15px ui-monospace,Consolas,monospace;color:#0d6257}.frow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center;padding:5px 6px;border-radius:7px}.frow+.frow{border-top:1px solid #edf2ef}.frow .fname{font:13px ui-monospace,Consolas,monospace;word-break:break-word}.frow .ftype{font-size:11px;color:var(--muted);display:block}.frow button{padding:3px 9px;font-size:12px;border-radius:20px;min-width:42px}.frow button[aria-pressed="true"]{background:#175747;color:#fff;border-color:#175747}.frow.ok{background:#e3f4e9}.frow.bad{background:#fde9de}
+.rt-wrap{overflow:auto;margin:12px 0;border:1px solid var(--line);border-radius:9px;max-height:420px}table.rt{border-collapse:collapse;width:100%;font-size:13.5px}table.rt th,table.rt td{text-align:left;padding:7px 11px;border-bottom:1px solid var(--line);white-space:nowrap}table.rt th{background:#e8f2ed;color:#214a3f;position:sticky;top:0;font-family:ui-monospace,Consolas,monospace;font-size:12.5px}table.rt td.null{color:#9aa9a4;font-style:italic}table.passport td,table.passport th{white-space:normal}
+.mcq{margin:16px 0 8px}.mcq .q{font-weight:650;margin-bottom:9px}.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.opts button{text-align:left;line-height:1.35;min-height:52px}.opts button.right{background:#e3f4e9;border-color:#4f9a72}.opts button.miss{background:#fde9de;border-color:#d0a28b}.opts.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.rel{border:1px solid var(--line);border-radius:11px;padding:13px 16px;margin:11px 0}.rel .pair{font:650 15px ui-monospace,Consolas,monospace;color:#0d6257;margin-bottom:8px}
+.er{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:12px 0}.er .ent{border:1.5px solid #4f9a72;background:#f4faf6;border-radius:9px;padding:7px 11px;font:13px/1.45 ui-monospace,Consolas,monospace}.er .ent b{display:block;color:#0d6257;font-size:14px}.er .ent i{font-style:normal;color:var(--muted);font-size:11.5px;display:block}.er .link{font:700 13px ui-monospace,Consolas,monospace;color:#175747;padding:0 4px;white-space:nowrap}
+.subnav{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 2px}.subnav button{padding:6px 12px;font-size:14px}.subnav button[aria-selected="true"]{background:#103e37;color:#fff;border-color:#103e37}
+.qcard{border:1px solid var(--line);border-radius:13px;padding:clamp(16px,3vw,26px);margin:14px 0;background:#fff}.predict{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}.predict input{width:110px}
+.whatif{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.whatif button{font-size:14px;padding:7px 12px;background:#f8f0df;border-color:#e6d3ad}
+table.breakdown{border-collapse:collapse;width:100%;font-size:14px;margin:12px 0}table.breakdown td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:top}table.breakdown td:first-child{font:12.5px ui-monospace,Consolas,monospace;color:#0d6257;width:44%;word-break:break-word}
+.stmts{display:grid;gap:9px;margin:12px 0}.stmts button{text-align:left;line-height:1.4}.stmts button.right{background:#fde9de;border-color:#d0a28b}.stmts button.miss{background:#f4f7f5;color:var(--muted)}
+.protocol{white-space:pre-wrap;font:13px/1.6 ui-monospace,Consolas,monospace;background:#f6faf7;border:1px solid var(--line);border-radius:9px;padding:14px 16px}
+.hidden{display:none!important}.loading{color:var(--muted);font-size:14px}
+@media(max-width:860px){.variants{grid-template-columns:repeat(2,minmax(0,1fr))}.tables{grid-template-columns:1fr}}
+@media(max-width:650px){main{border-radius:0;margin:0;padding:19px 16px}header{padding:24px 16px}header h1{font-size:23px}nav{padding:12px 16px}.video-stub,.opts,.opts.three{grid-template-columns:1fr}.variants{grid-template-columns:1fr}table.breakdown td:first-child{width:auto}table.breakdown tr{display:grid}}
+</style></head><body><header><div class="kicker">Данные как основа ИИ · бакалавриат · семестр 2 · тема 08</div><h1>Тренажёр 08·1 · Разбор готового SQL-кода</h1><p>Читаем чужой скрипт: таблицы, ключи, связи, данные и запросы. Каждый запрос выполняется прямо в браузере.</p></header><nav><a href="../index.html#topic08">← Все материалы</a><a href="../read/08.html">Лонгрид 08</a><a href="Тренажер_08_запросы.html">Тренажёр 08·2 · Запросы</a><a href="../03_ЛАБОРАТОРНЫЕ/ЛР_08.html">Лабораторная 08</a></nav><main>
+<div class="callout">Это учебный тренажёр без оценки: ответы никуда не отправляются, а попытки не ограничены. Писать SQL с нуля здесь не нужно — задача в том, чтобы понять готовый скрипт и уметь объяснить, какую задачу решает каждый запрос. Можно разбирать самостоятельно или вместе с ИИ, но каждое объяснение стоит проверять запуском запроса.</div>
+
+<figure class="video-stub" data-video-slot="t08-1-start"><div class="frame" role="img" aria-label="Место для видео"><div class="play" aria-hidden="true">▶</div><div>Видео появится здесь</div></div><figcaption><h3>Видео · Как начать практику (≈ 3–4 мин)</h3><div class="small">Заглушка. Сценарий будущей записи экрана:</div><ol><li>Выбор варианта и где посмотреть весь скрипт целиком.</li><li>Шаг «Схема»: как отмечать PK и FK и читать паспорт таблиц.</li><li>Шаг «Запросы»: сначала предсказать число строк, потом выполнить; кнопки «Что если…».</li><li>Шаг «ИИ и протокол»: найти ошибку в объяснении ИИ и скопировать протокол разбора.</li></ol></figcaption></figure>
+
+<h2>Выберите вариант</h2><p>Во всех вариантах одинаковая структура скрипта: <code>DROP TABLE</code> → <code>CREATE TABLE</code> → <code>INSERT</code> → пять запросов <code>SELECT</code>. Отличаются предметные области.</p>
+<div class="variants" id="variants"></div>
+<div id="engine" class="loading" aria-live="polite">Загружаем SQL-движок (SQLite в браузере)…</div>
+
+<div id="work" class="hidden">
+<details id="scriptBox"><summary>Весь скрипт варианта</summary><pre class="sql" id="fullScript"></pre><div class="toolbar"><button id="copyScript" type="button">Скопировать скрипт</button><span class="small" id="copyScriptMsg" aria-live="polite"></span></div></details>
+<div class="steps" role="tablist" id="steps"></div>
+
+<section id="step1" role="tabpanel"><h2>Шаг 1. Таблицы и ключи</h2><p>Отметьте для каждого поля, является ли оно <strong>первичным ключом (PK)</strong> — однозначно определяет строку своей таблицы, — и <strong>внешним ключом (FK)</strong> — ссылается на строку другой таблицы. Одно поле может быть и тем и другим. Подсказки ищите в тексте <code>CREATE TABLE</code>: слова <code>PRIMARY KEY</code> и <code>REFERENCES</code>.</p><pre class="sql" id="createScript"></pre><div class="tables" id="keyTables"></div><div class="toolbar"><button class="primary" id="checkKeys" type="button">Проверить ключи</button><button id="showKeys" type="button">Показать ответ</button></div><div id="keysFeedback" aria-live="polite"></div><div id="passport" class="hidden"><h3>Паспорт таблиц</h3><p class="small">Типы данных и ограничения, прочитанные из скрипта. Так выглядит описание базы, которое стоит иметь перед любым запросом.</p><div id="passportBody"></div></div></section>
+
+<section id="step2" role="tabpanel" class="hidden"><h2>Шаг 2. Связи между таблицами</h2><p>Определите тип каждой связи. <strong>1 : M</strong> («один ко многим») — одной строке слева соответствует много строк справа. <strong>M : M</strong> («многие ко многим») — много с обеих сторон; такая связь всегда хранится через промежуточную таблицу. <strong>1 : 1</strong> — строго по одной строке с каждой стороны.</p><div id="rels"></div><div id="erBox" class="hidden"><h3>Схема связей</h3><div id="er"></div><p class="small">Обозначения: «1 — M» читается «одна строка слева — много строк справа». У каждой таблицы показаны ключи.</p></div></section>
+
+<section id="step3" role="tabpanel" class="hidden"><h2>Шаг 3. Что добавляют INSERT</h2><p>Скрипт уже выполнен. Посмотрите, что лежит в таблицах после всех <code>INSERT</code>, и ответьте на вопросы о порядке заполнения и пустых значениях.</p><div class="subnav" id="dataTabs" role="tablist"></div><div id="dataTable"></div><div id="dataQs"></div><h3>Эксперименты с ограничениями</h3><p>Каждая кнопка выполняет одну команду на свежей копии базы. Посмотрите, что база разрешает, а что нет.</p><div class="whatif" id="demos"></div><div id="demoOut" aria-live="polite"></div></section>
+
+<section id="step4" role="tabpanel" class="hidden"><h2>Шаг 4. Запросы SELECT</h2><p>Для каждого запроса: определите бизнес-задачу, предскажите число строк и только потом выполните. Кнопки «Что если…» меняют одну часть запроса — так видно, за что она отвечает.</p><div class="subnav" id="qTabs" role="tablist"></div><div id="qCard"></div></section>
+
+<section id="step5" role="tabpanel" class="hidden"><h2>Шаг 5. Проверка объяснения ИИ</h2><div id="aiBlock"></div><h3>Как проверять объяснение ИИ</h3><ul><li>Выполните запрос и сравните число строк с тем, что обещает объяснение.</li><li>Найдите в запросе каждую часть, о которой говорит объяснение. Если её нет, утверждение придумано.</li><li>Отдельно проверьте строки без пары и пустые значения: что с ними делают <code>JOIN</code>, <code>COUNT</code> и <code>AVG</code>.</li><li>Сверьте название показателя с формулой: «потратил» и «сумма всех заказов» — разные вещи.</li></ul><details><summary>Шаблон запроса к ИИ для разбора скрипта</summary><pre class="protocol" id="promptText"></pre><div class="toolbar"><button id="copyPrompt" type="button">Скопировать запрос вместе со скриптом</button><span class="small" id="copyPromptMsg" aria-live="polite"></span></div></details><h3>Протокол разбора</h3><p class="small">Сводка ваших первых попыток. Её можно сохранить себе или показать преподавателю на занятии.</p><div class="protocol" id="protocol"></div><div class="toolbar"><button class="primary" id="copyProtocol" type="button">Скопировать протокол</button><button id="restart" type="button">Начать вариант заново</button><span class="small" id="copyProtocolMsg" aria-live="polite"></span></div></section>
+</div>
+<div class="footer">Данные как основа ИИ · бакалавриат · тема 08 «Хранение данных и реляционные базы». Скрипты вариантов взяты без изменений из лабораторной работы «Разбор готового SQL-кода». SQL выполняется локально в браузере (SQLite через sql.js); синтаксис скриптов рассчитан на PostgreSQL и в SQLite работает так же.</div>
+</main>
+<script>
+(()=>{
+const VARIANTS=[
+{id:1,name:'Библиотека',blurb:'авторы, книги, читатели, выдачи',
+sql:`DROP TABLE IF EXISTS loans;
+DROP TABLE IF EXISTS books;
+DROP TABLE IF EXISTS readers;
+DROP TABLE IF EXISTS authors;
+
+CREATE TABLE authors (
+    author_id INT PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    country VARCHAR(50)
+);
+
+CREATE TABLE books (
+    book_id INT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    author_id INT REFERENCES authors(author_id),
+    year_published INT,
+    genre VARCHAR(50)
+);
+
+CREATE TABLE readers (
+    reader_id INT PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    city VARCHAR(50),
+    registration_date DATE
+);
+
+CREATE TABLE loans (
+    loan_id INT PRIMARY KEY,
+    book_id INT REFERENCES books(book_id),
+    reader_id INT REFERENCES readers(reader_id),
+    loan_date DATE NOT NULL,
+    return_date DATE,
+    fine NUMERIC(8,2) DEFAULT 0
+);
+
+INSERT INTO authors VALUES
+(1, 'Лев Толстой', 'Россия'),
+(2, 'Джордж Оруэлл', 'Великобритания'),
+(3, 'Харуки Мураками', 'Япония'),
+(4, 'Агата Кристи', 'Великобритания');
+
+INSERT INTO books VALUES
+(101, 'Война и мир', 1, 1869, 'Роман'),
+(102, 'Анна Каренина', 1, 1877, 'Роман'),
+(103, '1984', 2, 1949, 'Антиутопия'),
+(104, 'Скотный двор', 2, 1945, 'Сатира'),
+(105, 'Норвежский лес', 3, 1987, 'Роман'),
+(106, 'Убийство в Восточном экспрессе', 4, 1934, 'Детектив');
+
+INSERT INTO readers VALUES
+(1, 'Иванов Иван', 'Москва', '2023-01-15'),
+(2, 'Петрова Мария', 'Санкт-Петербург', '2023-02-20'),
+(3, 'Сидоров Алексей', 'Москва', '2023-03-10'),
+(4, 'Кузнецова Ольга', 'Казань', '2023-04-05');
+
+INSERT INTO loans VALUES
+(1, 101, 1, '2024-01-10', '2024-02-10', 0),
+(2, 103, 2, '2024-01-15', '2024-02-20', 50.00),
+(3, 105, 1, '2024-02-01', NULL, 0),
+(4, 101, 3, '2024-02-05', '2024-03-05', 0),
+(5, 106, 4, '2024-02-10', '2024-02-25', 0),
+(6, 103, 1, '2024-03-01', NULL, 0),
+(7, 104, 2, '2024-03-10', '2024-03-20', 10.00);
+
+SELECT b.title, a.full_name AS author, b.year_published, b.genre
+FROM books b
+JOIN authors a ON b.author_id = a.author_id
+ORDER BY b.year_published;
+
+SELECT r.full_name AS reader, b.title, l.loan_date, l.return_date, l.fine
+FROM loans l
+JOIN readers r ON l.reader_id = r.reader_id
+JOIN books b ON l.book_id = b.book_id
+ORDER BY l.loan_date;
+
+SELECT b.genre, COUNT(*) AS loan_count
+FROM loans l
+JOIN books b ON l.book_id = b.book_id
+GROUP BY b.genre
+ORDER BY loan_count DESC;
+
+SELECT r.full_name, b.title, l.loan_date
+FROM loans l
+JOIN readers r ON l.reader_id = r.reader_id
+JOIN books b ON l.book_id = b.book_id
+WHERE l.return_date IS NULL;
+
+SELECT r.city, SUM(l.fine) AS total_fine
+FROM loans l
+JOIN readers r ON l.reader_id = r.reader_id
+GROUP BY r.city
+HAVING SUM(l.fine) > 0
+ORDER BY total_fine DESC;`,
+rels:[
+{a:'authors',b:'books',ans:'1M',why:'У книги один автор (books.author_id), а у автора может быть много книг: у Льва Толстого их две.'},
+{a:'readers',b:'loans',ans:'1M',why:'Каждая выдача относится к одному читателю (loans.reader_id), а один читатель берёт книги много раз: у Иванова Ивана три выдачи.'},
+{a:'books',b:'loans',ans:'1M',why:'Каждая выдача — это одна книга (loans.book_id), а одну книгу выдают много раз: «Война и мир» и «1984» выдавались дважды.'},
+{a:'books',b:'readers',ans:'MM',why:'Прямого ключа между books и readers нет. Их связывает таблица loans: один читатель брал много книг, одну книгу брали разные читатели. Это «многие ко многим» через промежуточную таблицу.'}],
+er:[['authors','1:M','books','1:M','loans','M:1','readers']],
+fill:{seq:'authors → books → readers → loans',child:'loans',parents:'books и readers'},
+nullq:{q:'У двух выдач return_date = NULL. Что это означает по смыслу скрипта?',opts:['Книга ещё у читателя: даты возврата пока нет','Книгу вернули в день выдачи','Дату возврата забыли заполнить, это ошибка в данных','NULL означает то же самое, что 0'],ans:0,why:'Поле return_date не помечено NOT NULL как раз потому, что у открытой выдачи даты возврата ещё нет. Запрос 4 ищет именно такие строки — книги на руках. Штраф у этих выдач 0, а не NULL: у fine задано DEFAULT 0.'},
+demos:[
+{label:'Книга несуществующего автора',sql:"INSERT INTO books VALUES (107, 'Мастер и Маргарита', 9, 1967, 'Роман');",why:'Автора с author_id = 9 нет, и внешний ключ books.author_id не даёт сослаться на несуществующую строку.'},
+{label:'Повторить author_id = 1',sql:"INSERT INTO authors VALUES (1, 'Фёдор Достоевский', 'Россия');",why:'author_id — первичный ключ: второй строки с тем же значением быть не может.'},
+{label:'Выдача без даты возврата и штрафа',sql:"INSERT INTO loans (loan_id, book_id, reader_id, loan_date)\nVALUES (8, 102, 4, '2024-03-15');",after:'SELECT * FROM loans WHERE loan_id = 8;',why:'Поля, которых нет в INSERT, получают значения по умолчанию: return_date — NULL, fine — 0 благодаря DEFAULT 0.'}],
+queries:[
+{task:'Каталог: все книги с авторами, от самых старых к новым',opts:['Какие книги и когда выдавались читателям','Сколько книг написал каждый автор','Какие книги берут чаще всего'],note:'JOIN нужен, потому что в books хранится только author_id, а имя автора лежит в authors. Сортировка по году идёт по возрастанию: ASC подразумевается по умолчанию.',
+whatif:[{label:'ORDER BY … DESC',sql:`SELECT b.title, a.full_name AS author, b.year_published, b.genre
+FROM books b
+JOIN authors a ON b.author_id = a.author_id
+ORDER BY b.year_published DESC;`,comment:'Те же 6 строк, но первым идёт «Норвежский лес» (1987). Направление сортировки меняет порядок, а не состав результата.'}]},
+{task:'Журнал выдач: кто, какую книгу, когда взял и вернул, какой штраф',opts:['Читатели и книги, которые им понравились','Книги, которые сейчас на руках','Сумма штрафов каждого читателя'],note:'Два JOIN подтягивают к каждой выдаче имя читателя и название книги. Строк столько же, сколько выдач (7): каждая выдача находит ровно одного читателя и одну книгу.',
+whatif:[{label:'Только выдачи со штрафом',sql:`SELECT r.full_name AS reader, b.title, l.loan_date, l.return_date, l.fine
+FROM loans l
+JOIN readers r ON l.reader_id = r.reader_id
+JOIN books b ON l.book_id = b.book_id
+WHERE l.fine > 0
+ORDER BY l.loan_date;`,comment:'Остались 2 выдачи Петровой Марии — на 50 и на 10. WHERE отбирает строки до вывода, порядок по дате сохраняется.'}]},
+{task:'Какие жанры читают чаще всего: число выдач по жанрам',opts:['Сколько книг каждого жанра есть в библиотеке','Сколько разных читателей у каждого жанра','Какой жанр приносит больше всего штрафов'],note:'Считаются строки loans, а не книги: COUNT(*) идёт после JOIN, и каждая выдача — одна строка. Поэтому у «Антиутопии» 2: книгу «1984» выдавали дважды.',
+whatif:[{label:'Считать книги в фонде, а не выдачи',sql:`SELECT genre, COUNT(*) AS book_count
+FROM books
+GROUP BY genre
+ORDER BY book_count DESC;`,comment:'Теперь у «Антиутопии» 1: в фонде одна такая книга. Запросы похожи, а вопросы разные — важно, строки какой таблицы вы считаете.'}]},
+{task:'Кто сейчас держит книги на руках: невозвращённые выдачи',opts:['Читатели, которые ни разу не брали книги','Выдачи без штрафа','Книги, которые никогда не выдавались'],note:'Условие IS NULL отбирает выдачи без даты возврата. Обе такие выдачи — у Иванова Ивана.',
+whatif:[{label:'= NULL вместо IS NULL',sql:`SELECT r.full_name, b.title, l.loan_date
+FROM loans l
+JOIN readers r ON l.reader_id = r.reader_id
+JOIN books b ON l.book_id = b.book_id
+WHERE l.return_date = NULL;`,comment:'0 строк. Сравнение с NULL через «=» даёт не «истину», а «неизвестно», и строка не проходит фильтр. Для пустых значений есть только IS NULL и IS NOT NULL.'}]},
+{task:'В каких городах читатели платили штрафы и сколько всего',opts:['Средний штраф в каждом городе','Все города читателей с суммой штрафов, включая нулевые','Читатели с самыми большими штрафами'],note:'GROUP BY собирает выдачи по городу читателя, SUM складывает штрафы, HAVING отбрасывает группы с нулевой суммой. Остаётся один город — Санкт-Петербург, 60.',
+whatif:[{label:'Убрать HAVING',sql:`SELECT r.city, SUM(l.fine) AS total_fine
+FROM loans l
+JOIN readers r ON l.reader_id = r.reader_id
+GROUP BY r.city
+ORDER BY total_fine DESC;`,comment:'3 строки: появились Москва и Казань с суммой 0. HAVING фильтрует уже готовые группы, поэтому условие на SUM нельзя перенести в WHERE.'}]}],
+ai:{q:5,statements:['Запрос соединяет выдачи с читателями, чтобы у каждой выдачи появился город читателя.','SUM(l.fine) складывает штрафы всех выдач внутри каждого города.','В результат попадут все три города читателей, отсортированные по сумме штрафов.','Выдачи без штрафа не мешают расчёту: они добавляют к сумме ноль.'],wrong:2,why:'HAVING SUM(l.fine) > 0 оставляет только города с ненулевой суммой штрафов — в этих данных это один Санкт-Петербург. Проверка занимает секунду: выполните запрос и посчитайте строки.'}},
+
+{id:2,name:'Интернет-магазин',blurb:'клиенты, товары, заказы, позиции заказов',
+sql:`DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS customers;
+
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    city VARCHAR(50),
+    registration_date DATE
+);
+
+CREATE TABLE products (
+    product_id INT PRIMARY KEY,
+    product_name VARCHAR(100) NOT NULL,
+    category VARCHAR(50),
+    price NUMERIC(10,2) NOT NULL,
+    stock_quantity INT DEFAULT 0
+);
+
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT REFERENCES customers(customer_id),
+    order_date DATE NOT NULL,
+    status VARCHAR(20) DEFAULT 'new'
+);
+
+CREATE TABLE order_items (
+    order_item_id INT PRIMARY KEY,
+    order_id INT REFERENCES orders(order_id),
+    product_id INT REFERENCES products(product_id),
+    quantity INT NOT NULL,
+    price_at_order NUMERIC(10,2) NOT NULL
+);
+
+INSERT INTO customers VALUES
+(1, 'Анна Смирнова', 'anna@example.com', 'Москва', '2023-01-10'),
+(2, 'Дмитрий Волков', 'dmitry@example.com', 'Санкт-Петербург', '2023-02-15'),
+(3, 'Елена Кузнецова', 'elena@example.com', 'Москва', '2023-03-20'),
+(4, 'Игорь Петров', 'igor@example.com', 'Новосибирск', '2023-04-25');
+
+INSERT INTO products VALUES
+(101, 'Смартфон', 'Электроника', 50000.00, 10),
+(102, 'Ноутбук', 'Электроника', 80000.00, 5),
+(103, 'Наушники', 'Электроника', 5000.00, 20),
+(104, 'Книга SQL', 'Книги', 1500.00, 30),
+(105, 'Кофемашина', 'Бытовая техника', 30000.00, 7);
+
+INSERT INTO orders VALUES
+(1, 1, '2024-01-05', 'completed'),
+(2, 2, '2024-01-10', 'completed'),
+(3, 1, '2024-02-01', 'shipped'),
+(4, 3, '2024-02-15', 'new'),
+(5, 4, '2024-03-01', 'cancelled');
+
+INSERT INTO order_items VALUES
+(1, 1, 101, 1, 50000.00),
+(2, 1, 103, 2, 5000.00),
+(3, 2, 102, 1, 80000.00),
+(4, 3, 104, 3, 1500.00),
+(5, 4, 105, 1, 30000.00),
+(6, 5, 103, 1, 5000.00);
+
+SELECT product_name, category, price
+FROM products
+WHERE price > 10000
+ORDER BY price DESC;
+
+SELECT o.order_id, c.full_name, o.order_date, o.status
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+ORDER BY o.order_date;
+
+SELECT c.full_name, SUM(oi.quantity * oi.price_at_order) AS total_spent
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+JOIN order_items oi ON o.order_id = oi.order_id
+GROUP BY c.customer_id, c.full_name
+ORDER BY total_spent DESC;
+
+SELECT category, AVG(price) AS avg_price, COUNT(*) AS product_count
+FROM products
+GROUP BY category
+HAVING AVG(price) > 5000
+ORDER BY avg_price DESC;
+
+SELECT c.full_name, c.email
+FROM customers c
+LEFT JOIN orders o ON c.customer_id = o.customer_id
+WHERE o.order_id IS NULL;`,
+rels:[
+{a:'customers',b:'orders',ans:'1M',why:'Заказ оформляет один клиент (orders.customer_id), а у клиента может быть несколько заказов: у Анны Смирновой их два.'},
+{a:'orders',b:'order_items',ans:'1M',why:'Строка заказа принадлежит одному заказу (order_items.order_id), а в заказе может быть несколько товаров: в заказе 1 — смартфон и наушники.'},
+{a:'products',b:'order_items',ans:'1M',why:'Каждая строка заказа — один товар (order_items.product_id), а один товар встречается во многих заказах: наушники купили дважды.'},
+{a:'orders',b:'products',ans:'MM',why:'Связь идёт через order_items: в заказе много товаров, товар входит во многие заказы. Промежуточная таблица хранит и свойства самой связи — количество и цену на момент заказа.'}],
+er:[['customers','1:M','orders','1:M','order_items','M:1','products']],
+fill:{seq:'customers → products → orders → order_items',child:'order_items',parents:'orders и products'},
+nullq:{q:"У orders.status задано DEFAULT 'new'. Когда это значение появится в таблице?",opts:['Всегда: DEFAULT заменяет статус, указанный в INSERT','Когда в INSERT статус не указан: база подставит new сама','Если в INSERT явно написать NULL','Когда заказ отменяют'],ans:1,why:'DEFAULT срабатывает, только если столбец не перечислен в INSERT. В скрипте все статусы заданы явно, поэтому значение по умолчанию не видно — проверьте его третьей кнопкой ниже. Явный NULL значение по умолчанию не включает: в столбец запишется NULL.'},
+demos:[
+{label:'Заказ несуществующего клиента',sql:"INSERT INTO orders VALUES (6, 9, '2024-03-05', 'new');",why:'Клиента с customer_id = 9 нет, внешний ключ orders.customer_id не даёт создать «осиротевший» заказ.'},
+{label:'Повторить product_id = 101',sql:"INSERT INTO products VALUES (101, 'Планшет', 'Электроника', 40000.00, 3);",why:'product_id — первичный ключ: второго товара с номером 101 быть не может.'},
+{label:'Заказ без статуса',sql:"INSERT INTO orders (order_id, customer_id, order_date)\nVALUES (6, 2, '2024-03-05');",after:'SELECT * FROM orders WHERE order_id = 6;',why:"Статус не указан — база подставила значение по умолчанию 'new'."}],
+queries:[
+{task:'Дорогие товары (дороже 10 000): от самого дорогого',opts:['Товары, которых на складе больше 10 штук','Самые продаваемые товары','Средняя цена товаров по категориям'],note:'WHERE отбирает товары по цене, ORDER BY … DESC ставит самые дорогие первыми. Под условие подходят 3 товара из 5.',
+whatif:[{label:'Порог 1 000 вместо 10 000',sql:`SELECT product_name, category, price
+FROM products
+WHERE price > 1000
+ORDER BY price DESC;`,comment:'Все 5 товаров. Порог в WHERE определяет состав результата: поменяли число — получили ответ на другой вопрос.'}]},
+{task:'Все заказы с именами клиентов в хронологическом порядке',opts:['Клиенты, у которых нет заказов','Сумма каждого заказа','Последний заказ каждого клиента'],note:'JOIN подставляет имя клиента вместо customer_id. Строк 5 — по числу заказов.',
+whatif:[{label:'Только выполненные заказы',sql:`SELECT o.order_id, c.full_name, o.order_date, o.status
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+WHERE o.status = 'completed'
+ORDER BY o.order_date;`,comment:'Остались 2 выполненных заказа. Заказы в статусах new, shipped и cancelled отсеяны.'}]},
+{task:'Сколько денег принёс каждый клиент по всем своим заказам',opts:['Средний чек каждого клиента','Сколько единиц товара купил каждый клиент','Стоимость товаров на складе'],note:'Цепочка customers → orders → order_items доходит до строк заказа. quantity * price_at_order — стоимость строки, SUM складывает строки по клиенту. Учитываются заказы в любом статусе, включая отменённый заказ Игоря Петрова.',
+whatif:[{label:'Учесть только выполненные заказы',sql:`SELECT c.full_name, SUM(oi.quantity * oi.price_at_order) AS total_spent
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+JOIN order_items oi ON o.order_id = oi.order_id
+WHERE o.status = 'completed'
+GROUP BY c.customer_id, c.full_name
+ORDER BY total_spent DESC;`,comment:'Осталось 2 клиента: Дмитрий Волков (80 000) и Анна Смирнова (60 000 — её заказ в статусе shipped выпал). Какие заказы считать, решает бизнес-вопрос, а не SQL.'}]},
+{task:'Категории со средней ценой товара выше 5 000 и число товаров в них',opts:['Товары дороже 5 000 в каждой категории','Выручка по категориям','Остатки на складе по категориям'],note:'AVG и COUNT считаются по каждой категории, а HAVING отбрасывает категории со средней ценой не выше 5 000. «Книги» (1 500) не проходят.',
+whatif:[{label:'Убрать HAVING',sql:`SELECT category, AVG(price) AS avg_price, COUNT(*) AS product_count
+FROM products
+GROUP BY category
+ORDER BY avg_price DESC;`,comment:'Появились «Книги» со средней ценой 1 500. Обратите внимание: в «Электронике» есть наушники за 5 000, но средняя по категории — 45 000. Порог применяется к среднему по группе, а не к каждому товару.'}]},
+{task:'Клиенты, которые зарегистрировались, но ни разу не заказывали',opts:['Клиенты с отменёнными заказами','Клиенты без email','Все клиенты вместе с их заказами'],note:'LEFT JOIN сохраняет всех клиентов; у кого заказов нет, в столбцах orders будет NULL, и WHERE o.order_id IS NULL оставляет именно их. Результат пустой: в этих данных заказ есть у каждого клиента. Пустой ответ — тоже ответ.',
+whatif:[{label:'Добавить клиента без заказов',pre:"INSERT INTO customers VALUES (5, 'Ольга Новикова', 'olga@example.com', 'Казань', '2024-03-10');",sql:`SELECT c.full_name, c.email
+FROM customers c
+LEFT JOIN orders o ON c.customer_id = o.customer_id
+WHERE o.order_id IS NULL;`,comment:'Запрос нашёл Ольгу Новикову. Он был верным и раньше — просто таких клиентов в данных не было.'},
+{label:'JOIN вместо LEFT JOIN',pre:"INSERT INTO customers VALUES (5, 'Ольга Новикова', 'olga@example.com', 'Казань', '2024-03-10');",sql:`SELECT c.full_name, c.email
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE o.order_id IS NULL;`,comment:'0 строк даже с добавленной Ольгой Новиковой — и так будет на любых данных. Обычный JOIN оставляет только клиентов с заказами, а у них order_id не бывает NULL.'}]}],
+ai:{q:3,statements:['Запрос проходит по цепочке customers → orders → order_items, чтобы добраться до строк заказов.','quantity * price_at_order — стоимость строки заказа по цене на момент покупки.','total_spent показывает, сколько клиент фактически заплатил магазину.','Группировка по customer_id не даст склеить двух разных клиентов с одинаковым именем.'],wrong:2,why:'В сумму попадают заказы в любом статусе: new, shipped и cancelled. У Игоря Петрова единственный заказ отменён, а total_spent у него 5 000. Чтобы считать реальные покупки, нужен фильтр по статусу — его нет в запросе.'}},
+
+{id:3,name:'Университет',blurb:'преподаватели, студенты, курсы, записи на курсы',
+sql:`DROP TABLE IF EXISTS enrollments;
+DROP TABLE IF EXISTS courses;
+DROP TABLE IF EXISTS students;
+DROP TABLE IF EXISTS teachers;
+
+CREATE TABLE teachers (
+    teacher_id INT PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    department VARCHAR(100),
+    salary NUMERIC(10,2)
+);
+
+CREATE TABLE students (
+    student_id INT PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    group_name VARCHAR(20),
+    enrollment_year INT,
+    city VARCHAR(50)
+);
+
+CREATE TABLE courses (
+    course_id INT PRIMARY KEY,
+    course_name VARCHAR(100) NOT NULL,
+    teacher_id INT REFERENCES teachers(teacher_id),
+    credits INT
+);
+
+CREATE TABLE enrollments (
+    enrollment_id INT PRIMARY KEY,
+    student_id INT REFERENCES students(student_id),
+    course_id INT REFERENCES courses(course_id),
+    grade INT,
+    enrollment_date DATE
+);
+
+INSERT INTO teachers VALUES
+(1, 'Иванов Сергей', 'Математика', 80000.00),
+(2, 'Петрова Ольга', 'Программирование', 90000.00),
+(3, 'Сидоров Николай', 'Физика', 75000.00),
+(4, 'Кузнецова Анна', 'Программирование', 95000.00);
+
+INSERT INTO students VALUES
+(1, 'Алексей Смирнов', 'ПИ-21', 2021, 'Москва'),
+(2, 'Мария Иванова', 'ПИ-21', 2021, 'Санкт-Петербург'),
+(3, 'Дмитрий Петров', 'ПИ-22', 2022, 'Казань'),
+(4, 'Елена Сидорова', 'ПИ-22', 2022, 'Москва'),
+(5, 'Игорь Волков', 'ПИ-23', 2023, 'Новосибирск');
+
+INSERT INTO courses VALUES
+(101, 'Базы данных', 2, 4),
+(102, 'Алгоритмы', 2, 5),
+(103, 'Математический анализ', 1, 6),
+(104, 'Физика', 3, 4),
+(105, 'Веб-программирование', 4, 3);
+
+INSERT INTO enrollments VALUES
+(1, 1, 101, 5, '2023-09-01'),
+(2, 1, 102, 4, '2023-09-01'),
+(3, 2, 101, 5, '2023-09-01'),
+(4, 2, 103, 4, '2023-09-01'),
+(5, 3, 101, 3, '2023-09-01'),
+(6, 3, 104, 4, '2023-09-01'),
+(7, 4, 102, 5, '2023-09-01'),
+(8, 4, 105, 4, '2023-09-01'),
+(9, 5, 101, NULL, '2023-09-01');
+
+SELECT full_name, group_name, enrollment_year
+FROM students
+ORDER BY group_name, full_name;
+
+SELECT c.course_name, t.full_name AS teacher, t.department, c.credits
+FROM courses c
+JOIN teachers t ON c.teacher_id = t.teacher_id
+ORDER BY c.credits DESC;
+
+SELECT c.course_name, AVG(e.grade) AS avg_grade, COUNT(e.student_id) AS students_count
+FROM courses c
+JOIN enrollments e ON c.course_id = e.course_id
+GROUP BY c.course_id, c.course_name
+ORDER BY avg_grade DESC;
+
+SELECT s.full_name, e.grade
+FROM students s
+JOIN enrollments e ON s.student_id = e.student_id
+JOIN courses c ON e.course_id = c.course_id
+WHERE c.course_name = 'Базы данных' AND e.grade = 5;
+
+SELECT t.full_name, AVG(e.grade) AS avg_grade
+FROM teachers t
+JOIN courses c ON t.teacher_id = c.teacher_id
+JOIN enrollments e ON c.course_id = e.course_id
+GROUP BY t.teacher_id, t.full_name
+HAVING AVG(e.grade) > 4
+ORDER BY avg_grade DESC;`,
+rels:[
+{a:'teachers',b:'courses',ans:'1M',why:'Курс ведёт один преподаватель (courses.teacher_id), а преподаватель может вести несколько курсов: Петрова Ольга ведёт «Базы данных» и «Алгоритмы».'},
+{a:'students',b:'enrollments',ans:'1M',why:'Запись принадлежит одному студенту (enrollments.student_id), а студент записан на несколько курсов.'},
+{a:'courses',b:'enrollments',ans:'1M',why:'Запись относится к одному курсу (enrollments.course_id), а на курс записано много студентов: на «Базы данных» — четверо.'},
+{a:'students',b:'courses',ans:'MM',why:'Связь идёт через enrollments: студент учится на многих курсах, на курсе много студентов. Оценка — свойство именно пары «студент — курс», поэтому она хранится в enrollments.'}],
+er:[['teachers','1:M','courses','1:M','enrollments','M:1','students']],
+fill:{seq:'teachers → students → courses → enrollments',child:'enrollments',parents:'students и courses'},
+nullq:{q:'У записи 9 (Игорь Волков, «Базы данных») grade = NULL. Как это повлияет на AVG(e.grade) по курсу?',opts:['NULL считается как 0 и тянет среднее вниз','Запрос завершится ошибкой','NULL пропускается: среднее считается по трём выставленным оценкам','Среднее по курсу тоже станет NULL'],ans:2,why:'AVG, SUM, MIN и MAX пропускают NULL. Для «Баз данных» среднее — (5 + 5 + 3) / 3 ≈ 4,33. А вот COUNT(e.student_id) посчитает и Игоря Волкова: записей 4. Это видно в запросе 3.'},
+demos:[
+{label:'Запись несуществующего студента',sql:"INSERT INTO enrollments VALUES (10, 7, 101, 4, '2023-09-01');",why:'Студента с student_id = 7 нет, внешний ключ enrollments.student_id запрещает такую запись.'},
+{label:'Повторить student_id = 1',sql:"INSERT INTO students VALUES (1, 'Олег Сергеев', 'ПИ-23', 2023, 'Томск');",why:'student_id — первичный ключ: двух студентов с номером 1 быть не может.'},
+{label:'Студент без имени',sql:"INSERT INTO students (student_id, group_name, enrollment_year)\nVALUES (6, 'ПИ-23', 2023);",why:'У full_name стоит NOT NULL: строку без имени база не примет. Остальные поля без NOT NULL можно оставить пустыми.'}],
+queries:[
+{task:'Список студентов по группам, внутри группы — по алфавиту',opts:['Сколько студентов в каждой группе','Студенты, поступившие в 2021 году','Студенты с лучшими оценками'],note:'Сортировка по двум столбцам: сначала по group_name, а при одинаковой группе — по full_name. Таблица одна, JOIN не нужен.',
+whatif:[{label:'Сортировать только по имени',sql:`SELECT full_name, group_name, enrollment_year
+FROM students
+ORDER BY full_name;`,comment:'Состав тот же, но группы перемешались: Мария Иванова из ПИ-21 оказалась последней. Первый столбец в ORDER BY главный, второй работает только внутри одинаковых значений первого.'}]},
+{task:'Кто какой курс ведёт: преподаватель, кафедра и объём курса в кредитах',opts:['Нагрузка преподавателей в часах','Зарплаты преподавателей по кафедрам','Курсы, на которые записалось больше всего студентов'],note:'JOIN подставляет к курсу имя и кафедру преподавателя. ORDER BY credits DESC — от самых объёмных курсов. У «Баз данных» и «Физики» по 4 кредита, их взаимный порядок запрос не задаёт.',
+whatif:[{label:'Только кафедра программирования',sql:`SELECT c.course_name, t.full_name AS teacher, t.department, c.credits
+FROM courses c
+JOIN teachers t ON c.teacher_id = t.teacher_id
+WHERE t.department = 'Программирование'
+ORDER BY c.credits DESC;`,comment:'Остались 3 курса. После JOIN по столбцу присоединённой таблицы можно фильтровать так же, как по своему.'}]},
+{task:'Средняя оценка и число записавшихся по каждому курсу',opts:['Средняя оценка каждого студента','Курсы, где оценку получили все студенты','Число пятёрок по каждому курсу'],note:'Группировка по курсу: AVG(e.grade) — средняя оценка, COUNT(e.student_id) — число записей. У «Баз данных» записей 4, а оценок 3: у Игоря Волкова grade = NULL.',
+whatif:[{label:'Добавить COUNT(e.grade)',sql:`SELECT c.course_name, AVG(e.grade) AS avg_grade,
+       COUNT(e.grade) AS graded_count, COUNT(e.student_id) AS students_count
+FROM courses c
+JOIN enrollments e ON c.course_id = e.course_id
+GROUP BY c.course_id, c.course_name
+ORDER BY avg_grade DESC;`,comment:'Для «Баз данных» graded_count = 3, а students_count = 4. COUNT(столбец) пропускает NULL; COUNT(*) и COUNT по полю, где NULL не бывает, считают все строки.'}]},
+{task:'Кто получил «отлично» по курсу «Базы данных»',opts:['Средняя оценка по «Базам данных»','Все студенты, записанные на «Базы данных»','Студенты с пятёркой по любому курсу'],note:'Название курса хранится в courses, поэтому нужен JOIN с ней. Два условия через AND должны выполниться одновременно. Подходят двое из четырёх записавшихся.',
+whatif:[{label:'Убрать условие e.grade = 5',sql:`SELECT s.full_name, e.grade
+FROM students s
+JOIN enrollments e ON s.student_id = e.student_id
+JOIN courses c ON e.course_id = c.course_id
+WHERE c.course_name = 'Базы данных';`,comment:'Все 4 записавшихся, включая Игоря Волкова без оценки. AND сужает результат: строка проходит, только если верны оба условия.'}]},
+{task:'Преподаватели, у студентов которых средняя оценка выше 4',opts:['Преподаватели, поставившие больше четырёх оценок','Курсы со средней оценкой выше 4','Преподаватели с самой высокой зарплатой'],note:'Цепочка teachers → courses → enrollments собирает все оценки по курсам преподавателя, AVG усредняет их, HAVING оставляет средние выше 4. Проходит одна Петрова Ольга — 4,4.',
+whatif:[{label:'Убрать HAVING',sql:`SELECT t.full_name, AVG(e.grade) AS avg_grade
+FROM teachers t
+JOIN courses c ON t.teacher_id = c.teacher_id
+JOIN enrollments e ON c.course_id = e.course_id
+GROUP BY t.teacher_id, t.full_name
+ORDER BY avg_grade DESC;`,comment:'Четыре преподавателя: у троих среднее ровно 4,0, и условие «> 4» их отсекает. С «>= 4» прошли бы все — граница порога важна.'}]}],
+ai:{q:3,statements:['JOIN связывает каждый курс с записями студентов на него.','AVG(e.grade) пропускает NULL, поэтому студент без оценки не тянет среднее вниз.','students_count — это число студентов, получивших оценку по курсу.','Курс без единой записи в результат не попадёт: его отсекает JOIN.'],wrong:2,why:'COUNT(e.student_id) считает записи на курс, а не оценки. У «Баз данных» записей 4, оценок 3 — у Игоря Волкова grade = NULL. Правильнее назвать столбец «записалось студентов».'}},
+
+{id:4,name:'Кинопрокат',blurb:'жанры, фильмы, актёры, роли, прокаты',
+sql:`DROP TABLE IF EXISTS rentals;
+DROP TABLE IF EXISTS film_actors;
+DROP TABLE IF EXISTS films;
+DROP TABLE IF EXISTS actors;
+DROP TABLE IF EXISTS genres;
+
+CREATE TABLE genres (
+    genre_id INT PRIMARY KEY,
+    genre_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE actors (
+    actor_id INT PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    country VARCHAR(50),
+    birth_year INT
+);
+
+CREATE TABLE films (
+    film_id INT PRIMARY KEY,
+    title VARCHAR(150) NOT NULL,
+    genre_id INT REFERENCES genres(genre_id),
+    release_year INT,
+    rental_price NUMERIC(8,2) NOT NULL
+);
+
+CREATE TABLE film_actors (
+    film_id INT REFERENCES films(film_id),
+    actor_id INT REFERENCES actors(actor_id),
+    role_name VARCHAR(100),
+    PRIMARY KEY (film_id, actor_id)
+);
+
+CREATE TABLE rentals (
+    rental_id INT PRIMARY KEY,
+    film_id INT REFERENCES films(film_id),
+    client_name VARCHAR(100) NOT NULL,
+    rental_date DATE NOT NULL,
+    return_date DATE,
+    payment NUMERIC(8,2) DEFAULT 0
+);
+
+INSERT INTO genres VALUES
+(1, 'Фантастика'),
+(2, 'Драма'),
+(3, 'Комедия'),
+(4, 'Боевик');
+
+INSERT INTO actors VALUES
+(1, 'Киану Ривз', 'Канада', 1964),
+(2, 'Том Хэнкс', 'США', 1956),
+(3, 'Скарлетт Йоханссон', 'США', 1984),
+(4, 'Жан Рено', 'Франция', 1948);
+
+INSERT INTO films VALUES
+(101, 'Матрица', 1, 1999, 200.00),
+(102, 'Форрест Гамп', 2, 1994, 150.00),
+(103, 'Мстители', 4, 2012, 250.00),
+(104, 'Леон', 4, 1994, 180.00),
+(105, 'Трудности перевода', 2, 2003, 120.00);
+
+INSERT INTO film_actors VALUES
+(101, 1, 'Нео'),
+(102, 2, 'Форрест Гамп'),
+(103, 3, 'Чёрная Вдова'),
+(104, 4, 'Леон'),
+(105, 3, 'Шарлотта');
+
+INSERT INTO rentals VALUES
+(1, 101, 'Иванов', '2024-01-10', '2024-01-12', 200.00),
+(2, 102, 'Петров', '2024-01-11', '2024-01-15', 150.00),
+(3, 101, 'Сидоров', '2024-01-12', '2024-01-14', 200.00),
+(4, 103, 'Иванов', '2024-01-15', '2024-01-18', 250.00),
+(5, 104, 'Кузнецова', '2024-01-20', NULL, 0.00),
+(6, 105, 'Петров', '2024-01-21', '2024-01-23', 120.00);
+
+SELECT f.title, g.genre_name, f.release_year, f.rental_price
+FROM films f
+JOIN genres g ON f.genre_id = g.genre_id
+ORDER BY f.release_year;
+
+SELECT a.full_name AS actor, f.title AS film, fa.role_name
+FROM film_actors fa
+JOIN actors a ON fa.actor_id = a.actor_id
+JOIN films f ON fa.film_id = f.film_id
+ORDER BY a.full_name;
+
+SELECT f.title, SUM(r.payment) AS total_payment, COUNT(*) AS rental_count
+FROM rentals r
+JOIN films f ON r.film_id = f.film_id
+GROUP BY f.film_id, f.title
+ORDER BY total_payment DESC;
+
+SELECT f.title, r.client_name, r.rental_date
+FROM rentals r
+JOIN films f ON r.film_id = f.film_id
+WHERE r.return_date IS NULL;
+
+SELECT g.genre_name, AVG(f.rental_price) AS avg_price
+FROM genres g
+JOIN films f ON g.genre_id = f.genre_id
+GROUP BY g.genre_id, g.genre_name
+HAVING AVG(f.rental_price) > 150
+ORDER BY avg_price DESC;`,
+rels:[
+{a:'genres',b:'films',ans:'1M',why:'У фильма один жанр (films.genre_id), а в жанре много фильмов: в «Драме» и «Боевике» по два.'},
+{a:'films',b:'rentals',ans:'1M',why:'Прокат — это один фильм (rentals.film_id), а один фильм берут много раз: «Матрицу» — дважды.'},
+{a:'films',b:'film_actors',ans:'1M',why:'В film_actors на один фильм может приходиться несколько строк — по одной на каждого актёра фильма.'},
+{a:'films',b:'actors',ans:'MM',why:'Связь идёт через film_actors: в фильме много актёров, актёр снимается во многих фильмах (Скарлетт Йоханссон — в двух). Составной ключ (film_id, actor_id) не даёт записать одну и ту же пару дважды.'}],
+er:[['genres','1:M','films','1:M','film_actors','M:1','actors'],['films','1:M','rentals']],
+fill:{seq:'genres → actors → films → film_actors → rentals',child:'film_actors',parents:'films и actors'},
+nullq:{q:'У проката 5 («Леон», Кузнецова) return_date = NULL, а payment = 0.00. Как это прочитать?',opts:['Фильм вернули, но забыли записать дату','Фильм ещё не вернули, и оплата пока не получена','Прокат был бесплатным по акции','Это ошибка: в каждой строке должны быть заполнены все поля'],ans:1,why:'return_date может быть пустым — прокат ещё открыт. Нулевая оплата с этим согласуется: деньги пока не получены. Это важно для запроса 3: у «Леона» выручка 0, хотя прокат был.'},
+demos:[
+{label:'Роль несуществующего актёра',sql:"INSERT INTO film_actors VALUES (101, 7, 'Тринити');",why:'Актёра с actor_id = 7 нет, внешний ключ film_actors.actor_id запрещает такую связь.'},
+{label:'Повторить пару (101, 1)',sql:"INSERT INTO film_actors VALUES (101, 1, 'Нео, дубль');",why:'Первичный ключ film_actors составной — (film_id, actor_id). Каждое поле по отдельности повторяться может, а пара целиком — нет.'},
+{label:'Прокат без даты возврата и оплаты',sql:"INSERT INTO rentals (rental_id, film_id, client_name, rental_date)\nVALUES (7, 102, 'Смирнова', '2024-01-25');",after:'SELECT * FROM rentals WHERE rental_id = 7;',why:'Не указанные поля получили значения по умолчанию: return_date — NULL, payment — 0 благодаря DEFAULT 0.'}],
+queries:[
+{task:'Каталог фильмов с жанрами по году выхода',opts:['Сколько фильмов в каждом жанре','Самые популярные фильмы проката','Самые дорогие фильмы'],note:'JOIN заменяет genre_id названием жанра. «Комедии» в результате нет: в этом жанре нет ни одного фильма, и обычный JOIN её не выводит.',
+whatif:[{label:'LEFT JOIN от жанров',sql:`SELECT g.genre_name, f.title, f.release_year
+FROM genres g
+LEFT JOIN films f ON f.genre_id = g.genre_id
+ORDER BY f.release_year;`,comment:'Появилась строка «Комедия» с пустыми полями фильма. LEFT JOIN сохраняет все строки левой таблицы, даже если пары для них нет.'}]},
+{task:'Кто в каких фильмах снимался и в какой роли',opts:['Сколько фильмов у каждого актёра','Актёры, у которых нет ролей','Фильмы без актёров'],note:'film_actors — связующая таблица: из неё берётся роль, а два JOIN подставляют имя актёра и название фильма. Строк 5 — по числу пар «фильм — актёр».',
+whatif:[{label:'Посчитать фильмы актёра',sql:`SELECT a.full_name AS actor, COUNT(*) AS films_count
+FROM film_actors fa
+JOIN actors a ON fa.actor_id = a.actor_id
+GROUP BY a.actor_id, a.full_name
+ORDER BY films_count DESC;`,comment:'После GROUP BY — 4 строки: у Скарлетт Йоханссон 2 фильма. Список пар из связующей таблицы превратился в счётчик.'}]},
+{task:'Выручка и число прокатов по каждому фильму',opts:['Средняя цена проката по жанрам','Фильмы, которые ни разу не брали в прокат','Сколько разных клиентов у каждого фильма'],note:'Группировка по фильму: SUM(r.payment) — выручка, COUNT(*) — число прокатов. «Матрицу» брали дважды, отсюда 400. У «Леона» выручка 0: прокат не закрыт и не оплачен.',
+whatif:[{label:'Только возвращённые фильмы',sql:`SELECT f.title, SUM(r.payment) AS total_payment, COUNT(*) AS rental_count
+FROM rentals r
+JOIN films f ON r.film_id = f.film_id
+WHERE r.return_date IS NOT NULL
+GROUP BY f.film_id, f.title
+ORDER BY total_payment DESC;`,comment:'«Леон» исчез: его единственный прокат ещё открыт. WHERE срабатывает до группировки, поэтому группа для «Леона» просто не образуется.'}]},
+{task:'Какие фильмы сейчас не возвращены и у кого они',opts:['Фильмы, которые никто не брал','Прокаты, за которые ничего не заплатили','Клиенты, взявшие больше одного фильма'],note:'IS NULL находит прокаты без даты возврата. Такой прокат один — «Леон» у Кузнецовой.',
+whatif:[{label:'= NULL вместо IS NULL',sql:`SELECT f.title, r.client_name, r.rental_date
+FROM rentals r
+JOIN films f ON r.film_id = f.film_id
+WHERE r.return_date = NULL;`,comment:'0 строк. Сравнение с NULL через «=» даёт «неизвестно», а не «истину». Пустые значения проверяют только через IS NULL и IS NOT NULL.'}]},
+{task:'Жанры, где средняя цена проката выше 150',opts:['Фильмы с ценой проката выше 150','Жанры, принёсшие больше 150 выручки','Все жанры со средней ценой проката'],note:'AVG считается внутри каждого жанра, HAVING оставляет средние выше 150: «Боевик» (215) и «Фантастика» (200). «Драма» со средней 135 отсекается.',
+whatif:[{label:'Убрать HAVING',sql:`SELECT g.genre_name, AVG(f.rental_price) AS avg_price
+FROM genres g
+JOIN films f ON g.genre_id = f.genre_id
+GROUP BY g.genre_id, g.genre_name
+ORDER BY avg_price DESC;`,comment:'Появилась «Драма» со средней 135. «Комедии» нет и здесь: у неё нет фильмов, и её отсёк JOIN ещё до группировки.'}]}],
+ai:{q:5,statements:['Запрос считает среднюю цену проката фильмов внутри каждого жанра.','HAVING применяет порог 150 к средним значениям, а не к отдельным фильмам.','«Драма» не попала в результат, потому что её средняя цена 135 — ниже порога.','«Комедия» не попала в результат, потому что её средняя цена ниже 150.'],wrong:3,why:'У «Комедии» нет ни одного фильма, поэтому её отсёк JOIN ещё до группировки — до HAVING она просто не дошла. Проверить можно кнопкой «LEFT JOIN от жанров» в запросе 1.'}}
+];
+
+const REL_LABEL={'11':'1 : 1','1M':'1 : M (один ко многим)','MM':'M : M (многие ко многим)'};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KW=/\b(SELECT|FROM|WHERE|JOIN|LEFT|INNER|ON|AND|OR|NOT|IN|IS|NULL|AS|GROUP|BY|HAVING|ORDER|ASC|DESC|LIMIT|COUNT|SUM|AVG|MIN|MAX|DISTINCT|CREATE|TABLE|PRIMARY|KEY|REFERENCES|INSERT|INTO|VALUES|DROP|IF|EXISTS|DEFAULT|UNIQUE|INT|VARCHAR|NUMERIC|DATE)\b/g;
+function hl(sql,mark){
+  const lines=sql.split('\n');
+  return lines.map(line=>{
+    const h=line.split(/('(?:[^']|'')*')/).map((p,i)=>i%2?'<span class="s">'+esc(p)+'</span>':esc(p).replace(KW,'<b class="k">$1</b>').replace(/\b(\d+(?:\.\d+)?)\b/g,'<span class="n">$1</span>')).join('');
+    return mark&&mark.has(line.trim())?'<span class="chg">'+h+'</span>':h;
+  }).join('\n');
+}
+function seeded(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function shuffle(a,seed){const r=seeded(seed),b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+const fmtNum=v=>Number.isInteger(v)?String(v):String(Math.round(v*100)/100);
+function tableHTML(res,cls){
+  if(!res||!res.columns.length)return '<div class="neutral">Запрос выполнен, но не вернул таблицу.</div>';
+  const head='<tr>'+res.columns.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr>';
+  const body=res.values.length?res.values.map(r=>'<tr>'+r.map(v=>v===null?'<td class="null">NULL</td>':'<td>'+esc(typeof v==='number'?fmtNum(v):v)+'</td>').join('')+'</tr>').join(''):'<tr><td colspan="'+res.columns.length+'" class="null">0 строк</td></tr>';
+  return '<div class="rt-wrap"><table class="rt '+(cls||'')+'"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>';
+}
+function rowsWord(n){const a=Math.abs(n)%100,b=a%10;return n+' '+(a>10&&a<20?'строк':b===1?'строка':b>=2&&b<=4?'строки':'строк')}
+
+let SQL=null,V=null,db=null,S=null;
+const splitScript=sql=>sql.split(/;\s*(?:\n|$)/).map(s=>s.trim()).filter(Boolean);
+function prep(v){
+  const st=splitScript(v.sql);
+  v.setup=st.filter(s=>!/^select/i.test(s));
+  v.selects=st.filter(s=>/^select/i.test(s)).map(s=>s+';');
+  v.tables=st.filter(s=>/^create table/i.test(s)).map(s=>s.match(/^create table\s+(\w+)/i)[1]);
+  v.createText=st.filter(s=>/^create table/i.test(s)).map(s=>s+';').join('\n\n');
+}
+function freshDb(extra){const d=new SQL.Database();d.run('PRAGMA foreign_keys = ON;');V.setup.forEach(s=>d.run(s));if(extra)d.run(extra);return d}
+function run(d,sql){const r=d.exec(sql);return r.length?r[r.length-1]:{columns:[],values:[]}}
+function schema(){
+  return V.tables.map(t=>{
+    const cols=run(db,'PRAGMA table_info('+t+')').values.map(r=>({name:r[1],type:r[2],notnull:!!r[3],dflt:r[4],pk:r[5]>0}));
+    const fks=run(db,'PRAGMA foreign_key_list('+t+')').values.map(r=>({from:r[3],table:r[2],to:r[4]}));
+    const uniq=new Set();
+    run(db,'PRAGMA index_list('+t+')').values.filter(r=>r[2]&&r[3]==='u').forEach(r=>run(db,"PRAGMA index_info('"+r[1]+"')").values.forEach(x=>uniq.add(x[2])));
+    cols.forEach(c=>{const f=fks.find(f=>f.from===c.name);c.fk=f?f.table+'('+f.to+')':null;c.unique=uniq.has(c.name)});
+    return {name:t,cols};
+  });
+}
+function typeText(t){t=String(t).toUpperCase();let m;
+  if(m=t.match(/^VARCHAR\((\d+)\)/))return 'строка до '+m[1]+' символов';
+  if(m=t.match(/^NUMERIC\((\d+),\s*(\d+)\)/))return 'десятичное число: до '+m[1]+' цифр, из них '+m[2]+' после запятой';
+  if(/^INT/.test(t))return 'целое число';
+  if(t==='DATE')return 'дата в формате ГГГГ-ММ-ДД';
+  return t}
+
+/* ---------- UI: варианты и шаги ---------- */
+function renderVariants(){
+  $('variants').innerHTML=VARIANTS.map(v=>'<button type="button" data-v="'+v.id+'" aria-pressed="'+(V&&V.id===v.id)+'"'+(SQL?'':' disabled')+'><b>'+v.id+'. '+esc(v.name)+'</b><span>'+esc(v.blurb)+'</span></button>').join('');
+  $('variants').querySelectorAll('button').forEach(b=>b.onclick=()=>choose(+b.dataset.v));
+}
+const STEPS=['Схема','Связи','Данные','Запросы','ИИ и протокол'];
+function renderSteps(){
+  $('steps').innerHTML=STEPS.map((n,i)=>'<button type="button" role="tab" data-s="'+(i+1)+'" aria-selected="'+(S.step===i+1)+'">'+(i+1)+'. '+n+(S.done[i+1]?' <span class="tick">✓</span>':'')+'</button>').join('');
+  $('steps').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.step=+b.dataset.s;showStep()});
+}
+function showStep(){for(let i=1;i<=5;i++)$('step'+i).classList.toggle('hidden',S.step!==i);renderSteps();if(S.step===5)renderProtocol();sendHeight()}
+function markDone(n){S.done[n]=true;renderSteps()}
+function choose(id){
+  V=VARIANTS.find(v=>v.id===id);if(!V.setup)prep(V);
+  if(db)db.close();db=freshDb();
+  S={step:1,done:{},keys:null,rels:{},data:{},q:{},qi:0,ai:null,tab:V.tables[0]};
+  renderVariants();$('work').classList.remove('hidden');
+  $('fullScript').innerHTML=hl(V.sql);$('createScript').innerHTML=hl(V.createText);
+  renderKeys();renderRels();renderData();renderQueries();renderAI();showStep();
+  $('scriptBox').open=false;
+}
+
+/* ---------- Шаг 1 ---------- */
+function renderKeys(){
+  S.schema=schema();S.marks={};
+  $('keyTables').innerHTML=S.schema.map(t=>'<div class="tcard"><h4>'+t.name+'</h4>'+t.cols.map(c=>{const k=t.name+'.'+c.name;S.marks[k]={pk:false,fk:false};return '<div class="frow" data-k="'+k+'"><div class="fname">'+c.name+'<span class="ftype">'+esc(c.type)+'</span></div><button type="button" data-f="pk" aria-pressed="false" aria-label="'+c.name+' — первичный ключ">PK</button><button type="button" data-f="fk" aria-pressed="false" aria-label="'+c.name+' — внешний ключ">FK</button></div>'}).join('')+'</div>').join('');
+  $('keyTables').querySelectorAll('.frow button').forEach(b=>b.onclick=()=>{const k=b.parentNode.dataset.k,f=b.dataset.f;S.marks[k][f]=!S.marks[k][f];b.setAttribute('aria-pressed',S.marks[k][f]);b.parentNode.classList.remove('ok','bad')});
+  $('keysFeedback').innerHTML='';$('passport').classList.add('hidden');
+  $('checkKeys').onclick=()=>checkKeys(false);$('showKeys').onclick=()=>checkKeys(true);
+}
+function checkKeys(reveal){
+  let bad=0,total=0;const wrongPk=[],wrongFk=[];
+  S.schema.forEach(t=>t.cols.forEach(c=>{const k=t.name+'.'+c.name,row=$('keyTables').querySelector('[data-k="'+k+'"]');
+    if(reveal){S.marks[k]={pk:c.pk,fk:!!c.fk};row.querySelector('[data-f=pk]').setAttribute('aria-pressed',c.pk);row.querySelector('[data-f=fk]').setAttribute('aria-pressed',!!c.fk)}
+    const m=S.marks[k],ok=m.pk===c.pk&&m.fk===!!c.fk;total++;if(!ok){bad++;if(m.pk!==c.pk)wrongPk.push(k);if(m.fk!==!!c.fk)wrongFk.push(k)}
+    row.classList.toggle('ok',ok);row.classList.toggle('bad',!ok)}));
+  if(S.keys===null)S.keys={bad:reveal?null:bad,total};
+  const fb=$('keysFeedback');
+  if(reveal){fb.className='neutral';fb.innerHTML='Ответ показан. <strong>PK</strong> — поле со словами <code>PRIMARY KEY</code> (в film_actors ключ составной и объявлен отдельной строкой). <strong>FK</strong> — поле со словом <code>REFERENCES</code>: оно хранит номер строки другой таблицы.'}
+  else if(!bad){fb.className='correct';fb.innerHTML='<strong>Все '+total+' полей размечены верно.</strong> Первичный ключ отвечает на вопрос «какая это строка», внешний — «с какой строкой другой таблицы она связана».'}
+  else{fb.className='wrong';fb.innerHTML='Ошибок: <strong>'+bad+' из '+total+'</strong> (подсвечены). '+(wrongPk.length?'Проверьте PK у полей: <code>'+wrongPk.join('</code>, <code>')+'</code>. ':'')+(wrongFk.length?'Проверьте FK у полей: <code>'+wrongFk.join('</code>, <code>')+'</code>. ':'')+'Ищите в CREATE TABLE слова PRIMARY KEY и REFERENCES.'}
+  if(reveal||!bad){renderPassport();markDone(1)}
+  sendHeight();
+}
+function renderPassport(){
+  $('passportBody').innerHTML=S.schema.map(t=>'<h4 style="margin:16px 0 4px;font-family:ui-monospace,Consolas,monospace;color:#0d6257">'+t.name+'</h4><div class="rt-wrap"><table class="rt passport"><thead><tr><th>Поле</th><th>Тип</th><th>Что хранит тип</th><th>Ограничения</th></tr></thead><tbody>'+t.cols.map(c=>{const r=[];if(c.pk)r.push('PK');if(c.fk)r.push('FK → '+c.fk);if(c.notnull)r.push('NOT NULL — обязательно');if(c.unique)r.push('UNIQUE — без повторов');if(c.dflt!==null&&c.dflt!==undefined)r.push('DEFAULT '+c.dflt);return '<tr><td><code>'+c.name+'</code></td><td>'+esc(c.type)+'</td><td>'+typeText(c.type)+'</td><td>'+(r.length?esc(r.join('; ')):'—')+'</td></tr>'}).join('')+'</tbody></table></div>').join('');
+  $('passport').classList.remove('hidden');
+}
+
+/* ---------- Общий вопрос с выбором ---------- */
+function mcq(box,cfg,onFirst){
+  let first=null;const opts=cfg.opts.map((o,i)=>({o,i}));
+  box.innerHTML='<div class="mcq"><div class="q">'+esc(cfg.q)+'</div><div class="opts'+(cfg.three?' three':'')+'">'+opts.map(x=>'<button type="button" data-i="'+x.i+'">'+esc(x.o)+'</button>').join('')+'</div><div class="fb" aria-live="polite"></div></div>';
+  const fb=box.querySelector('.fb');
+  box.querySelectorAll('.opts button').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i,ok=i===cfg.ans;if(first===null){first=ok;onFirst&&onFirst(ok)}
+    if(ok){b.classList.add('right');box.querySelectorAll('.opts button').forEach(x=>x.disabled=true);fb.className='fb correct';fb.innerHTML='<strong>Верно.</strong> '+esc(cfg.why)}
+    else{b.classList.add('miss');b.disabled=true;fb.className='fb wrong';fb.innerHTML=esc(cfg.hint||'Пока нет. Подумайте ещё и выберите другой вариант.')}
+    sendHeight();
+  });
+}
+
+/* ---------- Шаг 2 ---------- */
+function renderRels(){
+  $('rels').innerHTML=V.rels.map((r,i)=>'<div class="rel" id="rel'+i+'"></div>').join('');
+  V.rels.forEach((r,i)=>mcq($('rel'+i),{q:r.a+' — '+r.b,opts:['1 : 1','1 : M (один ко многим)','M : M (многие ко многим)'],ans:['11','1M','MM'].indexOf(r.ans),why:r.why,three:true,hint:'Пока нет. Найдите в скрипте поле REFERENCES: в какой из двух таблиц оно стоит и может ли значение в нём повторяться?'},ok=>{S.rels[i]=ok;if(Object.keys(S.rels).length===V.rels.length){$('erBox').classList.remove('hidden');markDone(2);sendHeight()}}));
+  $('rels').querySelectorAll('.rel .q').forEach(q=>q.classList.add('pair'));
+  const keysOf=t=>{const s=S.schema.find(x=>x.name===t);return s.cols.filter(c=>c.pk||c.fk).map(c=>(c.pk&&c.fk?'PK, FK ':c.pk?'PK ':'FK ')+c.name)};
+  $('er').innerHTML=V.er.map(chain=>'<div class="er">'+chain.map((x,i)=>i%2?'<span class="link">'+(x==='1:M'?'1 ── M':'M ── 1')+'</span>':'<div class="ent"><b>'+x+'</b>'+keysOf(x).map(k=>'<i>'+k+'</i>').join('')+'</div>').join('')+'</div>').join('');
+  $('erBox').classList.add('hidden');
+}
+
+/* ---------- Шаг 3 ---------- */
+function renderData(){
+  const tabs=()=>{$('dataTabs').innerHTML=V.tables.map(t=>{const n=run(db,'SELECT COUNT(*) FROM '+t).values[0][0];return '<button type="button" role="tab" data-t="'+t+'" aria-selected="'+(S.tab===t)+'">'+t+' · '+n+'</button>'}).join('');
+    $('dataTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;tabs();sendHeight()});
+    $('dataTable').innerHTML=tableHTML(run(db,'SELECT * FROM '+S.tab))};
+  tabs();
+  const f=V.fill,drops=V.setup.filter(s=>/^drop/i.test(s)).map(s=>s.match(/(\w+)$/)[1]);
+  const qs=[
+    {q:'Скрипт заполняет таблицы в порядке '+f.seq+'. Почему '+f.child+' заполняется после таблиц '+f.parents+'?',opts:['Так скрипт короче','В '+f.child+' больше всего строк, их принято вставлять в конце','Строки в '+f.child+' ссылаются на '+f.parents+' через внешние ключи, и эти строки должны уже существовать','Порядок INSERT не важен, это вопрос стиля'],ans:2,why:'Внешний ключ проверяется в момент вставки: ссылаться можно только на уже существующую строку. Поэтому сначала заполняют «родительские» таблицы, потом зависимые. Нарушение видно в первом эксперименте ниже.'},
+    {q:'В начале скрипта DROP TABLE идут в обратном порядке: '+drops.join(' → ')+'. Зачем?',opts:['Нельзя удалить таблицу, на которую ещё ссылаются другие: сначала удаляют зависимые','Чтобы первыми удалить самые большие таблицы','DROP TABLE IF EXISTS удаляет только пустые таблицы','Порядок DROP ни на что не влияет'],ans:0,why:'Пока зависимая таблица существует, её внешние ключи держат родительскую. В PostgreSQL удаление таблицы, на которую ссылаются, завершится ошибкой (без CASCADE). IF EXISTS лишь позволяет запустить скрипт повторно, когда таблиц ещё нет.'},
+    V.nullq];
+  $('dataQs').innerHTML=qs.map((q,i)=>'<div id="dq'+i+'"></div>').join('');
+  qs.forEach((q,i)=>mcq($('dq'+i),q,ok=>{S.data[i]=ok;if(Object.keys(S.data).length===3)markDone(3)}));
+  $('demos').innerHTML=V.demos.map((d,i)=>'<button type="button" data-i="'+i+'">'+esc(d.label)+'</button>').join('');$('demoOut').innerHTML='';
+  $('demos').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const d=V.demos[+b.dataset.i],x=freshDb();let out='<pre class="sql">'+hl(d.sql)+'</pre>';
+    try{x.run(d.sql);out+='<div class="correct"><strong>Выполнено.</strong> '+esc(d.why)+'</div>'+(d.after?tableHTML(run(x,d.after)):'')}
+    catch(e){out+='<div class="wrong"><strong>База отказала:</strong> <code>'+esc(e.message)+'</code><br>'+esc(d.why)+'</div>'}
+    x.close();$('demoOut').innerHTML=out;sendHeight()});
+}
+
+/* ---------- Шаг 4 ---------- */
+function breakdown(sql){
+  return sql.replace(/;$/,'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{let m,t='';
+    if(m=l.match(/^SELECT\s+(.*)$/i)){t='Какие столбцы вывести.';const ag=[];if(/COUNT\(\*\)/i.test(l))ag.push('COUNT(*) — число строк в группе');if(/COUNT\((?!\*)/i.test(l))ag.push('COUNT(поле) — число непустых значений поля');if(/SUM\(/i.test(l))ag.push('SUM — сумма');if(/AVG\(/i.test(l))ag.push('AVG — среднее, NULL пропускается');if(ag.length)t+=' Агрегаты: '+ag.join('; ')+'.';if(/\bAS\b/i.test(l))t+=' AS задаёт имя столбца в результате.'}
+    else if(m=l.match(/^FROM\s+(\w+)(?:\s+(\w+))?/i))t='Основная таблица '+m[1]+(m[2]?' (короткое имя '+m[2]+')':'')+'.';
+    else if(m=l.match(/^(LEFT\s+)?JOIN\s+(\w+)\s+(\w+)\s+ON\s+(.*)$/i))t='Присоединяет таблицу '+m[2]+' ('+m[3]+'): строки склеиваются, когда '+m[4]+'.'+(m[1]?' LEFT сохраняет строки левой части, даже если пары справа нет — тогда поля справа будут NULL.':' Строки без пары в результат не попадают.');
+    else if(m=l.match(/^WHERE\s+(.*)$/i))t='Отбирает строки до группировки: остаются только те, где '+m[1]+'.';
+    else if(m=l.match(/^GROUP BY\s+(.*)$/i))t='Собирает строки в группы с одинаковыми значениями '+m[1]+'; агрегаты считаются внутри каждой группы.';
+    else if(m=l.match(/^HAVING\s+(.*)$/i))t='Отбирает уже готовые группы: остаются те, где '+m[1]+'.';
+    else if(m=l.match(/^ORDER BY\s+(.*)$/i))t='Сортирует результат по '+m[1]+(/DESC/i.test(m[1])?' (DESC — по убыванию).':' (по возрастанию: ASC подразумевается).');
+    else t='Продолжение предыдущей строки.';
+    return '<tr><td>'+esc(l)+'</td><td>'+esc(t)+'</td></tr>'}).join('');
+}
+function renderQueries(){
+  $('qTabs').innerHTML=V.queries.map((q,i)=>'<button type="button" role="tab" data-i="'+i+'" aria-selected="'+(S.qi===i)+'">Запрос '+(i+1)+(S.q[i]&&S.q[i].run?' ✓':'')+'</button>').join('');
+  $('qTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.qi=+b.dataset.i;renderQueries();sendHeight()});
+  const i=S.qi,Q=V.queries[i],sql=V.selects[i],st=S.q[i]||(S.q[i]={});
+  const opts=shuffle([Q.task].concat(Q.opts),V.id*10+i);
+  $('qCard').innerHTML='<div class="qcard"><h3 style="margin-top:0">Запрос '+(i+1)+' из 5</h3><pre class="sql">'+hl(sql)+'</pre><div id="qTask"></div><div class="predict"><label for="pred">Сколько строк вернёт запрос?</label><input id="pred" type="number" min="0" step="1" inputmode="numeric" value="'+(st.pred!=null?st.pred:'')+'"><button class="primary" type="button" id="runQ">Выполнить запрос</button></div><div id="qOut" aria-live="polite"></div><div id="qMore" class="hidden"><h3>Разбор по строкам</h3><table class="breakdown"><tbody>'+breakdown(sql)+'</tbody></table><div class="neutral">'+esc(Q.note)+'</div><h3>Что если…</h3><div class="whatif">'+Q.whatif.map((w,j)=>'<button type="button" data-j="'+j+'">'+esc(w.label)+'</button>').join('')+'</div><div id="wOut" aria-live="polite"></div></div>'+(i<4?'<div class="toolbar"><button type="button" id="nextQ">Следующий запрос →</button></div>':'<div class="toolbar"><button type="button" id="toAI">Перейти к шагу 5 →</button></div>')+'</div>';
+  mcq($('qTask'),{q:'Какую бизнес-задачу решает запрос?',opts,ans:opts.indexOf(Q.task),why:'Именно на этот вопрос отвечает запрос.',hint:'Не совпадает с запросом. Посмотрите, из каких таблиц берутся строки, что стоит в SELECT и есть ли фильтр или группировка.'},ok=>{st.task=ok});
+  const showRun=()=>{const r=run(db,sql),n=r.values.length,p=st.pred;let msg;
+    if(p===null||p===undefined||p==='')msg='<div class="neutral">Запрос вернул <strong>'+rowsWord(n)+'</strong>.</div>';
+    else msg=p===n?'<div class="correct"><strong>Прогноз верный:</strong> '+rowsWord(n)+'.</div>':'<div class="wrong">Вы ожидали '+rowsWord(p)+', запрос вернул <strong>'+rowsWord(n)+'</strong>. Разберитесь, какая часть запроса дала разницу.</div>';
+    $('qOut').innerHTML=msg+tableHTML(r);$('qMore').classList.remove('hidden')};
+  if(st.run)showRun();
+  $('runQ').onclick=()=>{const v=$('pred').value.trim();if(!st.run){st.pred=v===''?null:Math.max(0,parseInt(v,10));st.actual=run(db,sql).values.length}st.run=true;showRun();renderQTabsOnly();if(V.queries.every((q,k)=>S.q[k]&&S.q[k].run))markDone(4);sendHeight()};
+  $('qMore').querySelectorAll('.whatif button').forEach(b=>b.onclick=()=>{const w=Q.whatif[+b.dataset.j],orig=new Set(sql.split('\n').map(l=>l.trim())),mark=new Set(w.sql.split('\n').map(l=>l.trim()).filter(l=>!orig.has(l)));
+    const x=freshDb(w.pre);const r=run(x,w.sql);x.close();
+    $('wOut').innerHTML=(w.pre?'<p class="small">Сначала выполнено: <code>'+esc(w.pre)+'</code></p>':'')+'<pre class="sql">'+hl(w.sql,mark)+'</pre><div class="neutral"><strong>'+rowsWord(r.values.length)+'.</strong> '+esc(w.comment)+'</div>'+tableHTML(r);sendHeight()});
+  if(i<4)$('nextQ').onclick=()=>{S.qi=i+1;renderQueries();$('qTabs').scrollIntoView({behavior:'smooth',block:'start'});sendHeight()};
+  else $('toAI').onclick=()=>{S.step=5;showStep();$('steps').scrollIntoView({behavior:'smooth'})};
+}
+function renderQTabsOnly(){$('qTabs').querySelectorAll('button').forEach(b=>{const k=+b.dataset.i;b.textContent='Запрос '+(k+1)+(S.q[k]&&S.q[k].run?' ✓':'')})}
+
+/* ---------- Шаг 5 ---------- */
+function renderAI(){
+  const A=V.ai;
+  $('aiBlock').innerHTML='<p>Вы попросили ИИ-помощника объяснить запрос '+A.q+'. Ниже — учебный пример такого объяснения: три утверждения верны, одно ошибочно. <strong>Найдите ошибку</strong> и проверьте себя запуском запроса.</p><pre class="sql">'+hl(V.selects[A.q-1])+'</pre><div class="stmts">'+A.statements.map((s,i)=>'<button type="button" data-i="'+i+'">'+esc(s)+'</button>').join('')+'</div><div id="aiFb" aria-live="polite"></div><div class="toolbar"><button type="button" id="aiRun">Выполнить запрос '+A.q+'</button></div><div id="aiOut"></div>';
+  $('aiBlock').querySelectorAll('.stmts button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,ok=i===A.wrong;if(S.ai===null)S.ai=ok;
+    if(ok){b.classList.add('right');$('aiBlock').querySelectorAll('.stmts button').forEach(x=>x.disabled=true);$('aiFb').className='correct';$('aiFb').innerHTML='<strong>Нашли.</strong> '+esc(A.why);markDone(5)}
+    else{b.classList.add('miss');b.disabled=true;$('aiFb').className='wrong';$('aiFb').textContent='Это утверждение верно. Сверьте оставшиеся с текстом запроса и с его результатом.'}
+    renderProtocol();sendHeight()});
+  $('aiRun').onclick=()=>{$('aiOut').innerHTML=tableHTML(run(db,V.selects[A.q-1]));sendHeight()};
+  $('promptText').textContent=promptText(false);
+}
+function promptText(withScript){return 'Объясни SQL-скрипт студенту первого курса.\n1. Какие таблицы создаются, какие в них поля, типы данных, первичные и внешние ключи.\n2. Какие связи между таблицами (1:1, 1:M, M:M) и через какие поля.\n3. Что добавляет каждый INSERT.\n4. Для каждого SELECT: какие таблицы участвуют, что делают JOIN, WHERE, GROUP BY, HAVING, ORDER BY, что считают COUNT, SUM, AVG и какую бизнес-задачу решает запрос.\nНе придумывай данных, которых нет в скрипте. Если в чём-то не уверен — так и напиши.\n\n'+(withScript?V.sql:'<вставьте сюда скрипт варианта>')}
+function renderProtocol(){
+  const yes=b=>b===true?'да':b===false?'нет':'—';
+  const relOk=Object.values(S.rels).filter(Boolean).length,dataOk=Object.values(S.data).filter(Boolean).length;
+  const lines=['Тренажёр 08·1 · Разбор готового SQL-кода','Вариант '+V.id+' · '+V.name,''];
+  lines.push('1. Ключи: '+(S.keys===null?'не проверялись':S.keys.bad===null?'ответ открыт без самостоятельной проверки':'с первой проверки ошибок '+S.keys.bad+' из '+S.keys.total+' полей'));
+  lines.push('2. Связи: верно с первого ответа '+relOk+' из '+V.rels.length+(Object.keys(S.rels).length<V.rels.length?' (отвечено '+Object.keys(S.rels).length+')':''));
+  lines.push('3. Данные: верно с первого ответа '+dataOk+' из 3'+(Object.keys(S.data).length<3?' (отвечено '+Object.keys(S.data).length+')':''));
+  lines.push('4. Запросы:');
+  V.queries.forEach((q,i)=>{const s=S.q[i]||{};lines.push('   Запрос '+(i+1)+': задача с первого ответа — '+yes(s.task)+'; прогноз строк — '+(s.pred==null?'не делался':s.pred)+(s.run?', факт — '+s.actual:', не выполнялся'))});
+  lines.push('5. Ошибка в объяснении ИИ найдена с первой попытки: '+yes(S.ai));
+  $('protocol').textContent=lines.join('\n');
+}
+function copy(text,msgId){const ok=()=>{$(msgId).textContent='Скопировано.'},fail=()=>{$(msgId).textContent='Не удалось скопировать автоматически — выделите текст вручную.'};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(ok,fail);else fail()}
+$('copyScript').onclick=()=>copy(V.sql,'copyScriptMsg');
+$('copyPrompt').onclick=()=>copy(promptText(true),'copyPromptMsg');
+$('copyProtocol').onclick=()=>copy($('protocol').textContent,'copyProtocolMsg');
+$('restart').onclick=()=>choose(V.id);
+
+/* ---------- высота для iframe в Moodle ---------- */
+function sendHeight(){try{parent.postMessage({type:'topic08_sql_review',height:document.documentElement.scrollHeight},'*')}catch(e){}}
+window.addEventListener('load',sendHeight);window.addEventListener('resize',sendHeight);
+document.addEventListener('toggle',sendHeight,true);
+
+/* ---------- загрузка sql.js ---------- */
+const CDN=['https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/','https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/'];
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+(async()=>{
+  renderVariants();
+  for(const base of CDN){try{if(!window.initSqlJs)await loadScript(base+'sql-wasm.js');SQL=await initSqlJs({locateFile:f=>base+f});break}catch(e){}}
+  if(!SQL){$('engine').className='wrong';$('engine').textContent='Не удалось загрузить SQL-движок. Проверьте подключение к интернету и обновите страницу.';return}
+  $('engine').className='small';$('engine').textContent='SQL-движок готов. Выберите вариант, чтобы начать.';
+  renderVariants();sendHeight();
+})();
+})();
+</script></body></html>
